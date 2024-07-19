@@ -108,7 +108,14 @@ function mode_to_str(mode) {
 }
 
 function refresh_ntp_graph(table) {
-// TODO update svg in document.getElementById(table)
+    var xhr = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    xhr.open('get', '/graph-data-ntp?table=' + table, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            document.getElementById(table).innerHTML = xhr.responseText;
+        }
+    }
+    xhr.send();
 }
 
 function refresh_ntp_graphs() {
@@ -117,7 +124,7 @@ function refresh_ntp_graphs() {
 
 setInterval(refresh_ntp_graphs, %d);
 // start
-refresh_graphs();
+refresh_ntp_graphs();
 
 var eventSourceNTP = new EventSource("/ntp");
 eventSourceNTP.onmessage = function(e) {
@@ -417,7 +424,7 @@ def slash():
 
 <section>
 <h2>Offsets</h2>
-<canvas id="ntp_offset"></canvas>
+<div id="ntp_offset"></div>
 </section>
 
 <footer>
