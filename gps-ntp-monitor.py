@@ -146,6 +146,18 @@ eventSourceGPS.onmessage = function(e) {
         document.getElementById('sep'      ).innerHTML = obj['sep'   ];
         document.getElementById('track'    ).innerHTML = obj['track' ];
     }
+    else if (obj['class'] == 'PPS') {
+        let ppstable = '<table>';
+        ppstable += '<caption>PPS</caption>';
+        ppstable += '<thead><th>name</th><th>value</th></thead>';
+        for (const [key, value] of Object.entries(obj)) {
+            ppstable += `<tr><th>${key}</th><td>${value}</td></tr>`;
+        };
+        ppstable += '</table>';
+
+        const ppstable_container = document.getElementById('pps-container');
+        ppstable_container.innerHTML = ppstable;
+    }
     else if (obj['class'] == 'SKY') {
         // general data
         document.getElementById('hdop').innerHTML = obj['hdop'];
@@ -325,6 +337,10 @@ def slash():
 <tr><th>speed</th><td id="speed"></td></tr>
 <tr><th>sep</th><td id="sep"></td></tr>
 </table>
+</section>
+
+<section>
+<div id="pps-container"></div>
 </section>
 
 <section>
