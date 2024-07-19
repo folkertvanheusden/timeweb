@@ -247,6 +247,22 @@ tbody th {
         width: 1900px
     }
 }
+
+@media (min-width: 2560px) {
+    .columns {
+        column-count: 4;
+        margin: auto;
+        width: 2500px
+    }
+}
+
+@media (min-width: 3840px) {
+    .columns {
+        column-count: 5;
+        margin: auto;
+        width: 3800px
+    }
+}
 '''
     return Response(page, mimetype="text/css")
 
