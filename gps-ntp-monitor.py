@@ -5,6 +5,14 @@
 from flask import Flask, Response
 import json
 import socket
+import time
+from ntp_api import ntp_api
+
+ntpsec_host = 'localhost'
+gpsd_host = ('time.lan.nurd.space', 2947)
+
+n = ntp_api(ntpsec_host, 3.)
+n.start()
 
 app = Flask(__name__)
 
@@ -15,7 +23,7 @@ def gps():
 
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(('time.lan.nurd.space', 2947))
+            s.connect(gpsd_host)
 
             # start stream
             s.send('?WATCH={"enable":true,"json":true}\r\n'.encode('ascii'))
@@ -35,11 +43,31 @@ def gps():
                 yield 'data:' + current + '\n\n'
 
         except Exception as e:
-            print(error)
+            print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
             yield 'data:' + json.dumps({'error': str(e)}) + '\n\n'
 
         if s != None:
             s.close()
+
+    return Response(stream(), mimetype="text/event-stream")
+
+@app.route('/ntp')
+def ntp():
+    def stream():
+        global n
+
+        try:
+            while True:
+                data = n.get_data()
+
+                if len(data) > 0:
+                    yield 'data:' + json.dumps(data) + '\n\n'
+
+                time.sleep(3)
+
+        except Exception as e:
+            print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
+            yield 'data:' + json.dumps({'error': str(e)}) + '\n\n'
 
     return Response(stream(), mimetype="text/event-stream")
 
@@ -58,9 +86,13 @@ function mode_to_str(mode) {
     return "?";
 }
 
-var eventSource = new EventSource("/gps");
-eventSource.onmessage = function(e) {
-console.log(e.data);
+var eventSourceNTP = new EventSource("/ntp");
+eventSourceNTP.onmessage = function(e) {
+    console.log(e)
+}
+
+var eventSourceGPS = new EventSource("/gps");
+eventSourceGPS.onmessage = function(e) {
     const obj = JSON.parse(e.data);
     if (obj['class'] == 'TPV') {
         document.getElementById('status'   ).innerHTML = obj['status'];

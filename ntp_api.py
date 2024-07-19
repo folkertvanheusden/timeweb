@@ -27,6 +27,8 @@ class ntp_api(threading.Thread):
         return self.data
 
     def run(self):
+        print('NTP poller thread starting')
+
         last_poll = 0
 
         while True:
@@ -58,7 +60,7 @@ class ntp_api(threading.Thread):
                 self.data = info
 
             except Exception as e:
-                print(f'Exception: {e}')
+                print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
                 time.sleep(1)
 
             time.sleep(self.poll_interval)
