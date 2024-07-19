@@ -213,6 +213,20 @@ body {
     min-height: 100vh;
     padding-top: 5em
 }
+footer {
+    background: #000000;
+    color: #ffffff;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+
+    font-size: 1.25em;
+    margin: 0;
+    padding: 0 1rem;
+    }
+footer a {
+    color: #ffffff;
+}
 section {
     display: inline-block;      /* keep content together for column-count */
     border: 1rem solid transparent;
@@ -366,6 +380,10 @@ def slash():
 <div id="ntp-peers-container"></div>
 </section>
 
+<footer>
+<h1><a href="https://github.com/folkertvanheusden/timeweb/">TimeWeb</a></h1>
+</footer>
+
 </main>
 
 </body>
@@ -374,4 +392,4 @@ def slash():
     return Response(page, mimetype="text/html")
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)
