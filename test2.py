@@ -88,7 +88,7 @@ def slash():
     page = '''<!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src="/code.js"></script>
+<script type="module" src="/code.js"></script>
 <title>GPS monitor</title>
 </head>
 <body>
