@@ -6,6 +6,7 @@ import json
 import socket
 import threading
 import time
+from db import time_series_db
 
 import ntp.control
 import ntp.magic
@@ -15,7 +16,7 @@ import ntp.util
 
 
 class ntp_api(threading.Thread):
-    def __init__(self, host, poll_interval):
+    def __init__(self, host, poll_interval, database):
         threading.Thread.__init__(self)
         self.host = host
         self.poll_interval = poll_interval
@@ -23,13 +24,25 @@ class ntp_api(threading.Thread):
         # empty initially
         self.data = dict()
 
+        self.databases = []
+        #
+        self.ntp_offset = time_series_db(database, 'offset', 86400)
+        self.databases.append(self.ntp_offset)
+
     def get_data(self):
         return self.data
+
+    def get_svg(self, table):
+        if table == 'ntp_offset':
+            return self.ntp_offset.get_svg()
+
+        return None
 
     def run(self):
         print('NTP poller thread starting')
 
         last_poll = 0
+        last_clean = 0
 
         while True:
             try:
@@ -49,6 +62,8 @@ class ntp_api(threading.Thread):
                 sysvars = session.readvar()
                 info['sysvars'] = sysvars
 
+                self.ntp_offset.insert(now, sysvars['offset'])
+
                 info['peers'] = dict()
                 peers = session.readstat()
                 for peer in peers:
@@ -58,6 +73,12 @@ class ntp_api(threading.Thread):
                 # print(session.mrulist())
 
                 self.data = info
+
+                if now - last_clean >= 300:
+                    last_clean = now
+
+                    for d in self.databases:
+                        d.clean()
 
             except Exception as e:
                 print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')

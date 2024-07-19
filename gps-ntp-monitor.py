@@ -2,16 +2,29 @@
 
 # pip install flask-sse
 
-from flask import Flask, Response
+from flask import Flask, Response, request
 import json
 import socket
 import time
 from ntp_api import ntp_api
 
+##### You may need to change these: #####
+
 ntpsec_host = 'localhost'
+# how often to refresh NTP data (seconds)
+ntpsec_interval = 3
+
 gpsd_host = ('localhost', 2947)
 
-n = ntp_api(ntpsec_host, 3.)
+# time series database. set a filename here to make it persistent.
+database_file = 'timeweb.db'
+
+# how often to refresh graphs (seconds)
+graph_refresh_interval = 30
+
+#########################################
+
+n = ntp_api(ntpsec_host, ntpsec_interval, database_file)
 n.start()
 
 app = Flask(__name__)
@@ -69,10 +82,18 @@ def ntp():
             print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
             yield 'data:' + json.dumps({'error': str(e)}) + '\n\n'
 
-    return Response(stream(), mimetype="text/event-stream")
+    return Response(stream(), mimetype='text/event-stream')
+
+@app.route('/graph-data-ntp')
+def graph_data_ntp():
+    global n
+    table = request.args.get('table', default = '', type = str)
+    return Response(n.get_svg(table), mimetype='image/svg+xml')
 
 @app.route('/code.js')
 def code():
+    global graph_refresh_interval
+
     code = '''
 function mode_to_str(mode) {
     if (mode == "0")
@@ -85,6 +106,18 @@ function mode_to_str(mode) {
         return "3D fix";
     return "?";
 }
+
+function refresh_ntp_graph(table) {
+// TODO update svg in document.getElementById(table)
+}
+
+function refresh_ntp_graphs() {
+    refresh_ntp_graph('ntp_offset');
+}
+
+setInterval(refresh_ntp_graphs, %d);
+// start
+refresh_graphs();
 
 var eventSourceNTP = new EventSource("/ntp");
 eventSourceNTP.onmessage = function(e) {
@@ -194,7 +227,7 @@ eventSourceGPS.onmessage = function(e) {
         console.log(obj);
     }
 };
-'''
+''' % (graph_refresh_interval * 1000)
     return Response(code, mimetype="text/javascript")
 
 @app.route('/simple.css')
@@ -318,6 +351,8 @@ def slash():
 <title>GPS/NTP monitor</title>
 <link href="/simple.css" rel="stylesheet" type="text/css">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 </head>
 <body>
 
@@ -380,6 +415,11 @@ def slash():
 <div id="ntp-peers-container"></div>
 </section>
 
+<section>
+<h2>Offsets</h2>
+<canvas id="ntp_offset"></canvas>
+</section>
+
 <footer>
 <h1><a href="https://github.com/folkertvanheusden/timeweb/">TimeWeb</a></h1>
 </footer>
@@ -392,4 +432,4 @@ def slash():
     return Response(page, mimetype="text/html")
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
