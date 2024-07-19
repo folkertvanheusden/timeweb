@@ -15,7 +15,7 @@ def gps():
 
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(('localhost', 2947))
+            s.connect(('time.lan.nurd.space', 2947))
 
             # start stream
             s.send('?WATCH={"enable":true,"json":true}\r\n'.encode('ascii'))
@@ -51,11 +51,23 @@ eventSource.onmessage = function(e) {
 console.log(e.data);
     const obj = JSON.parse(e.data);
     if (obj['class'] == 'TPV') {
-        document.getElementById('time'     ).innerHTML = obj['time'];
-        document.getElementById('ept'      ).innerHTML = obj['ept' ];
-        document.getElementById('mode'     ).innerHTML = obj['mode'];
-        document.getElementById('latitude' ).innerHTML = obj['lat' ];
-        document.getElementById('longitude').innerHTML = obj['lon' ];
+        document.getElementById('status'   ).innerHTML = obj['status'];
+        document.getElementById('time'     ).innerHTML = obj['time'  ];
+        document.getElementById('mode'     ).innerHTML = obj['mode'  ];
+        document.getElementById('latitude' ).innerHTML = obj['lat'   ];
+        document.getElementById('longitude').innerHTML = obj['lon'   ];
+        document.getElementById('altitude' ).innerHTML = obj['alt'   ];
+        document.getElementById('epx'      ).innerHTML = obj['epx'   ];
+        document.getElementById('epy'      ).innerHTML = obj['epy'   ];
+        document.getElementById('epv'      ).innerHTML = obj['epv'   ];
+        document.getElementById('ept'      ).innerHTML = obj['ept'   ];
+        document.getElementById('eps'      ).innerHTML = obj['eps'   ];
+        document.getElementById('eph'      ).innerHTML = obj['eph'   ];
+        document.getElementById('epc'      ).innerHTML = obj['epc'   ];
+        document.getElementById('magvar'   ).innerHTML = obj['magvar'];
+        document.getElementById('speed'    ).innerHTML = obj['speed' ];
+        document.getElementById('geoidSep' ).innerHTML = obj['geoidSep'];
+        document.getElementById('sep'      ).innerHTML = obj['sep'   ];
     }
     else if (obj['class'] == 'SKY') {
         // general data
@@ -96,10 +108,22 @@ def slash():
 <h2>position</h2>
 <table>
 <tr><td>time</td><td id="time"></td></tr>
-<tr><td>ept</td><td id="ept"><td></tr>
+<tr><td>status</td><td id="status"><td></tr>
 <tr><td>fix mode</td><td id="mode"></td></tr>
 <tr><td>latitude</td><td id="latitude"></td></tr>
 <tr><td>longitude</td><td id="longitude"></td></tr>
+<tr><td>altitude</td><td id="altitude"></td></tr>
+<tr><td>epx</td><td id="epx"></td></tr>
+<tr><td>epy</td><td id="epy"></td></tr>
+<tr><td>epv</td><td id="epv"></td></tr>
+<tr><td>ept</td><td id="ept"><td></tr>
+<tr><td>eps</td><td id="eps"><td></tr>
+<tr><td>epc</td><td id="epc"><td></tr>
+<tr><td>eph</td><td id="eph"><td></tr>
+<tr><td>geoidSep</td><td id="geoidSep"><td></tr>
+<tr><td>magvar</td><td id="magvar"></td></tr>
+<tr><td>speed</td><td id="speed"></td></tr>
+<tr><td>sep</td><td id="sep"></td></tr>
 </table>
 </div>
 <div>
