@@ -173,6 +173,35 @@ def css():
     page = '''tr:nth-child(even) {
    background-color: #f2f2f2;
 }
+* {
+    box-sizing: border-box
+}
+body {
+    display: flex;
+    font: 18px/1.5 Open Sans, DejaVu Sans, Liberation Sans, Arial, sans-serif;
+    flex-direction: column;
+    margin: 0;
+    min-height: 100vh;
+    padding-top: 5em
+}
+section {
+    display: inline-block;      /* keep content together for column-count */
+    border: 1rem solid transparent;
+    width: 100%
+}
+
+section > * {
+    list-style: none;
+    margin: 0;
+    overflow: hidden;
+    padding: .5rem var(--padding) 1rem;
+    width: 100%
+}
+
+main {
+    flex: 1 0 0
+}
+
 table { border-collapse: collapse }
 td { padding: .25rem .5rem }
 thead {
@@ -192,6 +221,32 @@ tbody th {
   color: #fff;
   text-align: left;
 }
+
+@media (min-width: 640px) {
+    body {
+        font-size: 16px
+    }
+
+    .columns {
+        column-count: 1
+    }
+}
+
+@media (min-width: 1280px) {
+    .columns {
+        column-count: 2;
+        margin: auto;
+        width: 1250px
+    }
+}
+
+@media (min-width: 1920px) {
+    .columns {
+        column-count: 3;
+        margin: auto;
+        width: 1900px
+    }
+}
 '''
     return Response(page, mimetype="text/css")
 
@@ -203,14 +258,18 @@ def slash():
 <script type="module" src="/code.js"></script>
 <title>GPS/NTP monitor</title>
 <link href="/simple.css" rel="stylesheet" type="text/css">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no">
 </head>
 <body>
 
-<div>
-<h1>GPS</h1>
-<div id="devices-container"></div>
+<main class="columns">
 
-<div>
+<section>
+<h2>GPSd</h2>
+<div id="devices-container"></div>
+</section>
+
+<section>
 <table>
 <caption>position</caption>
 <thead><th>name</th><th>value</th><th>description</th></thead>
@@ -233,9 +292,9 @@ def slash():
 <tr><th>speed</th><td id="speed"></td></tr>
 <tr><th>sep</th><td id="sep"></td></tr>
 </table>
-</div>
+</section>
 
-<div>
+<section>
 <table>
 <caption>satellites</caption>
 <thead><th>name</th><th>value</th><th>description</th></thead>
@@ -246,16 +305,14 @@ def slash():
 <tr><th>vdop</th><td id="vdop"></td><td>altitude dilution of precision</td></tr>
 </table>
 <div id="sats-container"></div>
-</div>
+</section>
 
-</div>
-
-<div>
-<h1>NTP</h1>
-
+<section>
+<h2>NTP</h2>
 <div id="ntp-general-container"></div>
+</section>
 
-</div>
+</main>
 
 </body>
 </html>
