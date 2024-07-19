@@ -109,15 +109,9 @@ console.log(e.data);
 '''
     return Response(code, mimetype="text/javascript")
 
-@app.route('/')
-def slash():
-    page = '''<!DOCTYPE html>
-<html>
-<head>
-<script type="module" src="/code.js"></script>
-<title>GPS monitor</title>
-<style>
-tr:nth-child(even) {
+@app.route('/simple.css')
+def css():
+    page = '''tr:nth-child(even) {
    background-color: #f2f2f2;
 }
 thead {
@@ -137,7 +131,17 @@ tbody th {
   color: #fff;
   text-align: left;
 }
-</style>
+'''
+    return Response(page, mimetype="text/css")
+
+@app.route('/')
+def slash():
+    page = '''<!DOCTYPE html>
+<html>
+<head>
+<script type="module" src="/code.js"></script>
+<title>GPS monitor</title>
+<link href="/simple.css" rel="stylesheet" type="text/css">
 </head>
 <body>
 <div>
