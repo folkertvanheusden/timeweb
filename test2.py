@@ -102,6 +102,18 @@ console.log(e.data);
         const stable_container = document.getElementById('sats-container');
         stable_container.innerHTML = stable;
     }
+    else if (obj['class'] == 'DEVICES') {
+        let dtable = '<table>';
+        dtable += '<caption>gpsd devices</caption>';
+        dtable += '<thead><th>driver</th><th>path</th><th>activated at</th></thead>';
+        obj['devices'].forEach(item => {
+            dtable += `<tr><td>${item.driver}</td><td>${item.path}</td><td>${item.activated}</td></tr>`;
+        });
+        dtable += '</table>';
+
+        const dtable_container = document.getElementById('devices-container');
+        dtable_container.innerHTML = dtable;
+    }
     else {
         console.log(obj);
     }
@@ -144,6 +156,9 @@ def slash():
 <link href="/simple.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+
+<div id="devices-container"></div>
+
 <div>
 <table>
 <caption>position</caption>
@@ -168,6 +183,7 @@ def slash():
 <tr><th>sep</th><td id="sep"></td></tr>
 </table>
 </div>
+
 <div>
 <table>
 <caption>satellites</caption>
@@ -180,6 +196,7 @@ def slash():
 </table>
 <div id="sats-container"></div>
 </div>
+
 </body>
 </html>
 '''
