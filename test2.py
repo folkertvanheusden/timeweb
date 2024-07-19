@@ -46,6 +46,18 @@ def gps():
 @app.route('/code.js')
 def code():
     code = '''
+function mode_to_str(mode) {
+    if (mode == "0")
+        return "-";
+    if (mode == "1")
+        return "no fix";
+    if (mode == "2")
+        return "2D fix";
+    if (mode == "3")
+        return "3D fix";
+    return "?";
+}
+
 var eventSource = new EventSource("/gps");
 eventSource.onmessage = function(e) {
 console.log(e.data);
@@ -53,7 +65,7 @@ console.log(e.data);
     if (obj['class'] == 'TPV') {
         document.getElementById('status'   ).innerHTML = obj['status'];
         document.getElementById('time'     ).innerHTML = obj['time'  ];
-        document.getElementById('mode'     ).innerHTML = obj['mode'  ];
+        document.getElementById('mode'     ).innerHTML = mode_to_str(obj['mode'  ]);
         document.getElementById('latitude' ).innerHTML = obj['lat'   ];
         document.getElementById('longitude').innerHTML = obj['lon'   ];
         document.getElementById('altitude' ).innerHTML = obj['alt'   ];
@@ -68,6 +80,7 @@ console.log(e.data);
         document.getElementById('speed'    ).innerHTML = obj['speed' ];
         document.getElementById('geoidSep' ).innerHTML = obj['geoidSep'];
         document.getElementById('sep'      ).innerHTML = obj['sep'   ];
+        document.getElementById('track'    ).innerHTML = obj['track' ];
     }
     else if (obj['class'] == 'SKY') {
         // general data
@@ -79,7 +92,7 @@ console.log(e.data);
 
         // list of satellites
         let stable = '<table>';
-        stable += '<tr><th>PRN</th><th>az</th><th>el</th><th>gnssid</th><th>ss</th><th>svid</th><th>in use</th></tr>';
+        stable += '<tr><th>PRN ID</th><th>azimuth</th><th>elevation</th><th>gnssid</th><th>signal strength</th><th>svid</th><th>in use</th></tr>';
         obj['satellites'].forEach(item => {
             stable += `<tr><td>${item.PRN}</td><td>${item.az}</td><td>${item.el}</td><td>${item.gnssid}</td><td>${item.ss}</td><td>${item.svid}</td><td>${item.used}</td></tr>`;
         });
@@ -110,17 +123,18 @@ def slash():
 <tr><td>time</td><td id="time"></td></tr>
 <tr><td>status</td><td id="status"><td></tr>
 <tr><td>fix mode</td><td id="mode"></td></tr>
-<tr><td>latitude</td><td id="latitude"></td></tr>
-<tr><td>longitude</td><td id="longitude"></td></tr>
-<tr><td>altitude</td><td id="altitude"></td></tr>
-<tr><td>epx</td><td id="epx"></td></tr>
-<tr><td>epy</td><td id="epy"></td></tr>
-<tr><td>epv</td><td id="epv"></td></tr>
-<tr><td>ept</td><td id="ept"><td></tr>
-<tr><td>eps</td><td id="eps"><td></tr>
-<tr><td>epc</td><td id="epc"><td></tr>
-<tr><td>eph</td><td id="eph"><td></tr>
-<tr><td>geoidSep</td><td id="geoidSep"><td></tr>
+<tr><td>latitude</td><td id="latitude"></td><td>+ is west</td></tr>
+<tr><td>longitude</td><td id="longitude"></td><td>+ is north</td></tr>
+<tr><td>altitude</td><td id="altitude"></td><td>only with 3D fix</td></tr>
+<tr><td>epx</td><td id="epx"></td><td>longitude error, in meters</td></tr>
+<tr><td>epy</td><td id="epy"></td><td>latitude error, in meters</td></tr>
+<tr><td>epv</td><td id="epv"></td><td>vertical error, in meters</td></tr>
+<tr><td>ept</td><td id="ept"></td><td>timestamp error, in seconds</td></tr>
+<tr><td>eps</td><td id="eps"></td></tr>
+<tr><td>epc</td><td id="epc"></td></tr>
+<tr><td>eph</td><td id="eph"></td></tr>
+<tr><td>track</td><td id="track"></td><td>course over ground, degrees from north</tr>
+<tr><td>geoidSep</td><td id="geoidSep"></td></tr>
 <tr><td>magvar</td><td id="magvar"></td></tr>
 <tr><td>speed</td><td id="speed"></td></tr>
 <tr><td>sep</td><td id="sep"></td></tr>
@@ -131,9 +145,9 @@ def slash():
 <table>
 <tr><td>#</td><td id="nsat"></td></tr>
 <tr><td># used</td><td id="usat"></td></tr>
-<tr><td>hdop</td><td id="hdop"></td></tr>
-<tr><td>pdop</td><td id="pdop"></td></tr>
-<tr><td>vdop</td><td id="vdop"></td></tr>
+<tr><td>hdop</td><td id="hdop"></td><td>horizontal dilution of precision</td></tr>
+<tr><td>pdop</td><td id="pdop"></td><td>spherical dilution of precision</td></tr>
+<tr><td>vdop</td><td id="vdop"></td><td>altitude dilution of precision</td></tr>
 </table>
 <div id="sats-container"></div>
 </div>
