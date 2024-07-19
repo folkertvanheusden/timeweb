@@ -126,6 +126,8 @@ def css():
     page = '''tr:nth-child(even) {
    background-color: #f2f2f2;
 }
+table { border-collapse: collapse }
+td { padding: .25rem .5rem }
 thead {
   background-color: #333;
   color: white;
@@ -152,7 +154,7 @@ def slash():
 <html>
 <head>
 <script type="module" src="/code.js"></script>
-<title>GPS monitor</title>
+<title>GPS/NTP monitor</title>
 <link href="/simple.css" rel="stylesheet" type="text/css">
 </head>
 <body>
