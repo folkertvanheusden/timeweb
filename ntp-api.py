@@ -2,6 +2,7 @@
 
 # apt install python3-ntp
 
+import json
 import socket
 import threading
 import time
@@ -18,40 +19,43 @@ class ntp_api(threading.Thread):
         threading.Thread.__init__(self)
         self.host = host
         self.poll_interval = poll_interval
-        self.active = False
 
-    # when there's a user of this object
-    def activate(self):
-        self.active = True
+        # empty initially
+        self.data = dict()
 
-    def deactive(self):
-        self.active = False
+    def get_data(self):
+        return self.data
 
     def run(self):
+        last_poll = 0
+
         while True:
             try:
-                if self.active == False:
+                now = time.time()
+                if now - last_poll < self.poll_interval:
                     time.sleep(0.5)
                     continue
-                
-                print('probe')
 
-                # create request
-                request = ntp.packet.SyncPacket()
-                request.transmit_timestamp = ntp.packet.SyncPacket.posix_to_ntp(time.time())
-                packet = request.flatten()
+                last_poll = now;
+                info = dict()
 
-                # send request & wait for reply
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.sendto(packet, (self.host, 123))
-                d, a = s.recvfrom(1024)
-                s.close()
+                info['poll-ts'] = now
 
-                pkt = ntp.packet.SyncPacket(d)
-                pkt.posixize()
+                session = ntp.packet.ControlSession()
+                session.openhost(self.host)
 
-                info = []
-                print(pkt)
+                sysvars = session.readvar()
+                info['sysvars'] = sysvars
+
+                info['peers'] = dict()
+                peers = session.readstat()
+                for peer in peers:
+                    peer_variables = session.readvar(peer.associd)
+                    info['peers'][peer.associd] = peer_variables
+
+                # print(session.mrulist())
+
+                self.data = info
 
             except Exception as e:
                 print(f'Exception: {e}')
@@ -60,7 +64,9 @@ class ntp_api(threading.Thread):
             time.sleep(self.poll_interval)
 
 if __name__ == "__main__":
-    n = ntp_api('192.168.64.11', 3)
-    n.activate()
+    n = ntp_api('localhost', 3)
     n.start()
-    time.sleep(60)
+
+    while True:
+        print(n.get_data())
+        time.sleep(3.9)
