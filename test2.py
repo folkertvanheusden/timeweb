@@ -92,7 +92,8 @@ console.log(e.data);
 
         // list of satellites
         let stable = '<table>';
-        stable += '<tr><th>PRN ID</th><th>azimuth</th><th>elevation</th><th>gnssid</th><th>signal strength</th><th>svid</th><th>in use</th></tr>';
+        stable += '<caption>details</caption>';
+        stable += '<thead><th>PRN ID</th><th>azimuth</th><th>elevation</th><th>gnssid</th><th>signal strength</th><th>svid</th><th>in use</th></thead>';
         obj['satellites'].forEach(item => {
             stable += `<tr><td>${item.PRN}</td><td>${item.az}</td><td>${item.el}</td><td>${item.gnssid}</td><td>${item.ss}</td><td>${item.svid}</td><td>${item.used}</td></tr>`;
         });
@@ -115,39 +116,63 @@ def slash():
 <head>
 <script type="module" src="/code.js"></script>
 <title>GPS monitor</title>
+<style>
+tr:nth-child(even) {
+   background-color: #f2f2f2;
+}
+thead {
+  background-color: #333;
+  color: white;
+}
+caption {
+  font-weight: bold;
+  font-size: 24px;
+  text-align: left;
+  color: #333;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+tbody th {
+  background-color: #555;
+  color: #fff;
+  text-align: left;
+}
+</style>
 </head>
 <body>
 <div>
-<h2>position</h2>
 <table>
-<tr><td>time</td><td id="time"></td></tr>
-<tr><td>status</td><td id="status"><td></tr>
-<tr><td>fix mode</td><td id="mode"></td></tr>
-<tr><td>latitude</td><td id="latitude"></td><td>+ is west</td></tr>
-<tr><td>longitude</td><td id="longitude"></td><td>+ is north</td></tr>
-<tr><td>altitude</td><td id="altitude"></td><td>only with 3D fix</td></tr>
-<tr><td>epx</td><td id="epx"></td><td>longitude error, in meters</td></tr>
-<tr><td>epy</td><td id="epy"></td><td>latitude error, in meters</td></tr>
-<tr><td>epv</td><td id="epv"></td><td>vertical error, in meters</td></tr>
-<tr><td>ept</td><td id="ept"></td><td>timestamp error, in seconds</td></tr>
-<tr><td>eps</td><td id="eps"></td></tr>
-<tr><td>epc</td><td id="epc"></td></tr>
-<tr><td>eph</td><td id="eph"></td></tr>
-<tr><td>track</td><td id="track"></td><td>course over ground, degrees from north</tr>
-<tr><td>geoidSep</td><td id="geoidSep"></td></tr>
-<tr><td>magvar</td><td id="magvar"></td></tr>
-<tr><td>speed</td><td id="speed"></td></tr>
-<tr><td>sep</td><td id="sep"></td></tr>
+<caption>position</caption>
+<thead><th>name</th><th>value</th><th>description</th></thead>
+<tr><th>time</th><td id="time"></td></tr>
+<tr><th>status</th><td id="status"><td></tr>
+<tr><th>fix mode</th><td id="mode"></td></tr>
+<tr><th>latitude</th><td id="latitude"></td><td>+ is west</td></tr>
+<tr><th>longitude</th><td id="longitude"></td><td>+ is north</td></tr>
+<tr><th>altitude</th><td id="altitude"></td><td>only with 3D fix</td></tr>
+<tr><th>epx</th><td id="epx"></td><td>longitude error, in meters</td></tr>
+<tr><th>epy</th><td id="epy"></td><td>latitude error, in meters</td></tr>
+<tr><th>epv</th><td id="epv"></td><td>vertical error, in meters</td></tr>
+<tr><th>ept</th><td id="ept"></td><td>timestamp error, in seconds</td></tr>
+<tr><th>eps</th><td id="eps"></td></tr>
+<tr><th>epc</th><td id="epc"></td></tr>
+<tr><th>eph</th><td id="eph"></td></tr>
+<tr><th>track</th><td id="track"></td><td>course over ground, degrees from north</tr>
+<tr><th>geoidSep</th><td id="geoidSep"></td></tr>
+<tr><th>magvar</th><td id="magvar"></td></tr>
+<tr><th>speed</th><td id="speed"></td></tr>
+<tr><th>sep</th><td id="sep"></td></tr>
 </table>
 </div>
 <div>
-<h2>satellites</h2>
 <table>
-<tr><td>#</td><td id="nsat"></td></tr>
-<tr><td># used</td><td id="usat"></td></tr>
-<tr><td>hdop</td><td id="hdop"></td><td>horizontal dilution of precision</td></tr>
-<tr><td>pdop</td><td id="pdop"></td><td>spherical dilution of precision</td></tr>
-<tr><td>vdop</td><td id="vdop"></td><td>altitude dilution of precision</td></tr>
+<caption>satellites</caption>
+<thead><th>name</th><th>value</th><th>description</th></thead>
+<tr><th>#</th><td id="nsat"></td></tr>
+<tr><th># used</th><td id="usat"></td></tr>
+<tr><th>hdop</th><td id="hdop"></td><td>horizontal dilution of precision</td></tr>
+<tr><th>pdop</th><td id="pdop"></td><td>spherical dilution of precision</td></tr>
+<tr><th>vdop</th><td id="vdop"></td><td>altitude dilution of precision</td></tr>
 </table>
 <div id="sats-container"></div>
 </div>
