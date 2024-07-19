@@ -88,8 +88,23 @@ function mode_to_str(mode) {
 
 var eventSourceNTP = new EventSource("/ntp");
 eventSourceNTP.onmessage = function(e) {
-    console.log(e)
-}
+    const obj = JSON.parse(e.data);
+
+    let ngtable = '<table>';
+    ngtable += '<caption>general</caption>';
+    ngtable += '<thead><th>name</th><th>value</th><th>description</th></thead>';
+    var poll_ts = new Date(obj['poll_ts'] * 1000);
+    ngtable += `<tr><th>poll ts</th><td>${poll_ts}</td><td>when were these values retrieved</td></tr>`;
+    for (const [key, value] of Object.entries(obj['sysvars'])) {
+        ngtable += `<tr><th>${key}</th><td>${value}</td></tr>`;
+    };
+    ngtable += '</table>';
+
+    const ngtable_container = document.getElementById('ntp-general-container');
+    console.log(ngtable_container);
+    console.log(ngtable)
+    ngtable_container.innerHTML = ngtable;
+};
 
 var eventSourceGPS = new EventSource("/gps");
 eventSourceGPS.onmessage = function(e) {
@@ -191,6 +206,8 @@ def slash():
 </head>
 <body>
 
+<div>
+<h1>GPS</h1>
 <div id="devices-container"></div>
 
 <div>
@@ -229,6 +246,15 @@ def slash():
 <tr><th>vdop</th><td id="vdop"></td><td>altitude dilution of precision</td></tr>
 </table>
 <div id="sats-container"></div>
+</div>
+
+</div>
+
+<div>
+<h1>NTP</h1>
+
+<div id="ntp-general-container"></div>
+
 </div>
 
 </body>

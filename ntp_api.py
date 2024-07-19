@@ -41,7 +41,7 @@ class ntp_api(threading.Thread):
                 last_poll = now;
                 info = dict()
 
-                info['poll-ts'] = now
+                info['poll_ts'] = now
 
                 session = ntp.packet.ControlSession()
                 session.openhost(self.host)
