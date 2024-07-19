@@ -16,5 +16,8 @@ In gps-ntp-monitor.py you may need to change the following two lines:
 Replace localhost and/or port if you have ntpsec and/or gpsd running on non-standard hosts/ports.
 
 
+Demo: http://gateway.vanheusden.com:5000/
+
+
 
 Released under MIT license by Folkert van Heusden.
