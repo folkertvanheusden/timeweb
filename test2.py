@@ -48,8 +48,11 @@ def code():
     code = '''
 var eventSource = new EventSource("/gps");
 eventSource.onmessage = function(e) {
+console.log(e.data);
     const obj = JSON.parse(e.data);
     if (obj['class'] == 'TPV') {
+        document.getElementById('time'     ).innerHTML = obj['time'];
+        document.getElementById('ept'      ).innerHTML = obj['ept' ];
         document.getElementById('mode'     ).innerHTML = obj['mode'];
         document.getElementById('latitude' ).innerHTML = obj['lat' ];
         document.getElementById('longitude').innerHTML = obj['lon' ];
@@ -92,6 +95,8 @@ def slash():
 <div>
 <h2>position</h2>
 <table>
+<tr><td>time</td><td id="time"></td></tr>
+<tr><td>ept</td><td id="ept"><td></tr>
 <tr><td>fix mode</td><td id="mode"></td></tr>
 <tr><td>latitude</td><td id="latitude"></td></tr>
 <tr><td>longitude</td><td id="longitude"></td></tr>
