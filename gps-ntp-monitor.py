@@ -8,7 +8,7 @@ import socket
 import time
 from ntp_api import ntp_api
 
-ntpsec_host = 'localhost'
+ntpsec_host = 'time.lan.nurd.space'
 gpsd_host = ('time.lan.nurd.space', 2947)
 
 n = ntp_api(ntpsec_host, 3.)
