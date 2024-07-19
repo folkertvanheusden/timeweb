@@ -55,12 +55,23 @@ eventSource.onmessage = function(e) {
         document.getElementById('longitude').innerHTML = obj['lon' ];
     }
     else if (obj['class'] == 'SKY') {
-        console.log(obj);
+        // general data
         document.getElementById('hdop').innerHTML = obj['hdop'];
         document.getElementById('pdop').innerHTML = obj['pdop'];
         document.getElementById('vdop').innerHTML = obj['vdop'];
         document.getElementById('nsat').innerHTML = obj['nSat'];
         document.getElementById('usat').innerHTML = obj['uSat'];
+
+        // list of satellites
+        let stable = '<table>';
+        stable += '<tr><th>PRN</th><th>az</th><th>el</th><th>gnssid</th><th>ss</th><th>svid</th><th>in use</th></tr>';
+        obj['satellites'].forEach(item => {
+            stable += `<tr><td>${item.PRN}</td><td>${item.az}</td><td>${item.el}</td><td>${item.gnssid}</td><td>${item.ss}</td><td>${item.svid}</td><td>${item.used}</td></tr>`;
+        });
+        stable += '</table>';
+
+        const stable_container = document.getElementById('sats-container');
+        stable_container.innerHTML = stable;
     }
     else {
         console.log(obj);
@@ -95,6 +106,7 @@ def slash():
 <tr><td>pdop</td><td id="pdop"></td></tr>
 <tr><td>vdop</td><td id="vdop"></td></tr>
 </table>
+<div id="sats-container"></div>
 </div>
 </body>
 </html>
