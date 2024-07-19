@@ -220,9 +220,9 @@ footer {
     bottom: 0;
     right: 0;
 
-    font-size: 1.25em;
+    font-size: 0.75em;
     margin: 0;
-    padding: 0 1rem;
+    padding: 0 0.25rem;
     }
 footer a {
     color: #ffffff;
