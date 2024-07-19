@@ -90,6 +90,8 @@ var eventSourceNTP = new EventSource("/ntp");
 eventSourceNTP.onmessage = function(e) {
     const obj = JSON.parse(e.data);
 
+    // sysvars
+
     let ngtable = '<table>';
     ngtable += '<caption>general</caption>';
     ngtable += '<thead><th>name</th><th>value</th><th>description</th></thead>';
@@ -101,9 +103,24 @@ eventSourceNTP.onmessage = function(e) {
     ngtable += '</table>';
 
     const ngtable_container = document.getElementById('ntp-general-container');
-    console.log(ngtable_container);
-    console.log(ngtable)
     ngtable_container.innerHTML = ngtable;
+
+    // peers
+
+    let peerstable = '<table>';
+    peerstable += '<caption>NTP peers</caption>';
+    peerstable += '<thead><th>host</th><th>refid</th><th>stratum</th><th>unreach</th><th>offset</th><th>jitter</th></thead>';
+    for (const [key, value] of Object.entries(obj['peers'])) {
+        var host = value.srchost;
+        if (host === undefined)
+            host = value.srcadr;
+        peerstable += `<tr><td>${host}</td><td>${value.refid}</td><td>${value.stratum}</td><td>${value.unreach}</td><td>${value.offset}</td><td>${value.jitter}</td></tr>`;
+    };
+
+    peerstable += '</table>';
+
+    const peerstable_container = document.getElementById('ntp-peers-container');
+    peerstable_container.innerHTML = peerstable;
 };
 
 var eventSourceGPS = new EventSource("/gps");
@@ -139,7 +156,7 @@ eventSourceGPS.onmessage = function(e) {
 
         // list of satellites
         let stable = '<table>';
-        stable += '<caption>details</caption>';
+        stable += '<caption>satellite details</caption>';
         stable += '<thead><th>PRN ID</th><th>azimuth</th><th>elevation</th><th>gnssid</th><th>signal strength</th><th>svid</th><th>in use</th></thead>';
         obj['satellites'].forEach(item => {
             stable += `<tr><td>${item.PRN}</td><td>${item.az}</td><td>${item.el}</td><td>${item.gnssid}</td><td>${item.ss}</td><td>${item.svid}</td><td>${item.used}</td></tr>`;
@@ -234,7 +251,7 @@ tbody th {
 
 @media (min-width: 1280px) {
     .columns {
-        column-count: 2;
+        column-count: 1;
         margin: auto;
         width: 1250px
     }
@@ -242,7 +259,7 @@ tbody th {
 
 @media (min-width: 1920px) {
     .columns {
-        column-count: 3;
+        column-count: 2;
         margin: auto;
         width: 1900px
     }
@@ -250,7 +267,7 @@ tbody th {
 
 @media (min-width: 2560px) {
     .columns {
-        column-count: 4;
+        column-count: 3;
         margin: auto;
         width: 2500px
     }
@@ -258,7 +275,7 @@ tbody th {
 
 @media (min-width: 3840px) {
     .columns {
-        column-count: 5;
+        column-count: 4;
         margin: auto;
         width: 3800px
     }
@@ -324,8 +341,13 @@ def slash():
 </section>
 
 <section>
-<h2>NTP</h2>
+<h2>NTP general</h2>
 <div id="ntp-general-container"></div>
+</section>
+
+<section>
+<h2>NTP peers</h2>
+<div id="ntp-peers-container"></div>
 </section>
 
 </main>
