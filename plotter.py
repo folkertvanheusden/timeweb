@@ -4,19 +4,16 @@ import datetime
 import io
 import matplotlib
 import matplotlib.pyplot as plt
-import threading
-
 # matplotlib is not thread safe
-lock = threading.Lock()
+from multiprocessing import Process, Queue
 
 matplotlib.use('agg')
 
-
 def plot_timeseries(table_name, data):
-    x = [datetime.datetime.fromtimestamp(row['x']) for row in data]
-    y = [row['y'] for row in data]
+    def _plot_timeseries(table_name, data, q):
+        x = [datetime.datetime.fromtimestamp(row['x']) for row in data]
+        y = [row['y'] for row in data]
 
-    with lock:
         plt.figure()
         plt.title(table_name)
         plt.xlabel('time')
@@ -29,8 +26,16 @@ def plot_timeseries(table_name, data):
 
         plt.close('all')
 
-    buf.seek(0)
-    data = buf.read()
-    buf.close()
+        buf.seek(0)
+        data = buf.read()
+        buf.close()
 
-    return data
+        q.put(data)
+
+    q = Queue()
+
+    p = Process(target=_plot_timeseries, args=('table_name', data, q))
+    p.start()
+    p.join()
+
+    return q.get()
