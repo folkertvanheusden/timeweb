@@ -55,7 +55,6 @@ class time_series_db:
             cur.execute('SELECT ts, value FROM %s WHERE ts >= ? ORDER BY ts ASC' % self.table_name, (time.time() - self.max_age,))
             rows = [{ 'x': row[0], 'y': row[1] } for row in cur.fetchall() ]
             cur.close()
-            self.db.commit()
 
             return rows
 
