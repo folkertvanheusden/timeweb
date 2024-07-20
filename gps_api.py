@@ -86,7 +86,7 @@ class gps_api(threading.Thread):
 
                     # in case a client "forgets" to unregister
                     for f in forget:
-                        del self.queues[f]
+                        self.queues.remove(f)
 
                     j = json.loads(current)
                     self.history[j['class']] = current
@@ -112,7 +112,7 @@ class gps_api(threading.Thread):
                         self.sat_used.insert(now, float(j['uSat']))
 
             except Exception as e:
-                print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
+                print(f'Exception (gps_api.py): {e}, line number: {e.__traceback__.tb_lineno}')
                 time.sleep(1)
 
             if s != None:

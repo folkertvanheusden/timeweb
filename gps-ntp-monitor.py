@@ -46,7 +46,7 @@ def gps():
                 yield 'data:' + current + '\n\n'
 
         except Exception as e:
-            print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
+            print(f'Exception (main): {e}, line number: {e.__traceback__.tb_lineno}')
             yield 'data:' + json.dumps({'error': str(e)}) + '\n\n'
 
         g.unregister(q)
@@ -68,7 +68,7 @@ def ntp():
                 time.sleep(3)
 
         except Exception as e:
-            print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
+            print(f'Exception (main): {e}, line number: {e.__traceback__.tb_lineno}')
             yield 'data:' + json.dumps({'error': str(e)}) + '\n\n'
 
     return Response(stream(), mimetype='text/event-stream')

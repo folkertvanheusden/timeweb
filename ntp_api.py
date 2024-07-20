@@ -82,7 +82,7 @@ class ntp_api(threading.Thread):
                         d.clean()
 
             except Exception as e:
-                print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
+                print(f'Exception (ntp_api.py): {e}, line number: {e.__traceback__.tb_lineno}')
                 time.sleep(1)
 
             time.sleep(self.poll_interval)

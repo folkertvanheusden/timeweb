@@ -35,7 +35,7 @@ class time_series_db:
             try:
                 cur.execute('INSERT INTO %s(ts, value) VALUES(?, ?)' % self.table_name, (ts, value))
             except Exception as e:
-                print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
+                print(f'Exception (db.py): {e}, line number: {e.__traceback__.tb_lineno}')
             cur.close()
             self.db.commit()
 
@@ -45,7 +45,7 @@ class time_series_db:
             try:
                 cur.execute('DELETE FROM %s WHERE ts < ?' % self.table_name, (time.time() - self.max_age,))
             except Exception as e:
-                print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
+                print(f'Exception (db.py): {e}, line number: {e.__traceback__.tb_lineno}')
             cur.close()
             self.db.commit()
 
