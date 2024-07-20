@@ -58,7 +58,16 @@ def plot_allandeviation(table_name, data, width):
     def _plot_allandeviation(table_name, data, width, q):
         mulx, muly = calc_plot_dimensions(width)
 
-        values = [float(row['y']) for row in data]
+        values = []
+        prev_value = None
+        for row in data:
+            v = float(row['y'])
+            if len(values) > 0:
+                n_to_add = int(v) - int(prev_value) - 1
+                values += [math.nan] * n_to_add
+            values.append(v)
+            prev_value = v
+
         a = allantools.Dataset(data=np.asarray(values),
                                data_type='phase',
                                rate=1)  # sample rate in Hz of the input data
@@ -115,10 +124,8 @@ def plot_dop(table_name, hdop_data, pdop_data, vdop_data, width):
         plt.close('all')
 
         buf.seek(0)
-        data = buf.read()
+        q.put(buf.read())
         buf.close()
-
-        q.put(data)
 
     q = Queue()
 
