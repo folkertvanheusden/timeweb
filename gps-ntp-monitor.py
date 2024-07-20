@@ -11,11 +11,11 @@ from ntp_api import ntp_api
 
 ##### You may need to change these: #####
 
-ntpsec_host = 'localhost'
+ntpsec_host = 'time.lan.nurd.space'
 # how often to refresh NTP data (seconds)
 ntpsec_interval = 3
 
-gpsd_host = ('localhost', 2947)
+gpsd_host = ('time.lan.nurd.space', 2947)
 
 # time series database. set a filename here to make it persistent.
 database_file = 'timeweb.db'
@@ -110,10 +110,12 @@ function refresh_x_graph(target, table) {
     var width = positionInfo.width;
 
     var url = '/graph-data-' + target + '?table=' + table + "&width=" + width;
+    console.log('refreshing ' + url)
 
     var xhr = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
     xhr.open('get', url, true);
     xhr.onreadystatechange = function() {
+        console.log(target + '|' + table + ': ' + xhr.readyState + ' ' + xhr.status);
         if (xhr.readyState == 4 && xhr.status == 200) {
             element.innerHTML = xhr.responseText;
         }
@@ -121,21 +123,20 @@ function refresh_x_graph(target, table) {
     xhr.send();
 }
 
-function refresh_ntp_graphs() {
-    refresh_x_graph('ntp', 'ntp_offset');
-}
+var interval = %d;
 
-setInterval(refresh_ntp_graphs, %d);
-refresh_ntp_graphs();
+function f_ntp_offset    () { refresh_x_graph('ntp', 'ntp_offset'); }
+function f_dop           () { refresh_x_graph('gps', 'dop'); }
+function f_pps_clk_offset() { refresh_x_graph('gps', 'pps_clk_offset'); }
 
-function refresh_gps_graphs() {
-    refresh_x_graph('gps', 'dop');
+f_ntp_offset();
+setInterval(f_ntp_offset, interval);
 
-    refresh_x_graph('gps', 'pps_clk_offset');
-}
+f_dop();
+setInterval(f_dop, interval);
 
-setInterval(refresh_gps_graphs, %d);
-refresh_gps_graphs();
+f_pps_clk_offset();
+setInterval(f_pps_clk_offset, interval);
 
 var eventSourceNTP = new EventSource("/ntp");
 eventSourceNTP.onmessage = function(e) {
@@ -245,7 +246,7 @@ eventSourceGPS.onmessage = function(e) {
         console.log(obj);
     }
 };
-''' % (graph_refresh_interval * 1000, graph_refresh_interval * 1000)
+''' % (graph_refresh_interval * 1000)
     return Response(code, mimetype="text/javascript")
 
 @app.route('/simple.css')
@@ -457,4 +458,4 @@ def slash():
     return Response(page, mimetype="text/html")
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)

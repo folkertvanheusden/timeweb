@@ -42,6 +42,8 @@ class gps_api(threading.Thread):
         if table == 'dop':
             return plot_dop('h/p/v dop', self.hdop.get(), self.pdop.get(), self.vdop.get(), width)
 
+        print(f'TABLE {table} not known!')
+
         return None
 
     def register(self):

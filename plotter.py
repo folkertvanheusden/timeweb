@@ -50,9 +50,10 @@ def plot_timeseries(table_name, data, width):
 
     p = Process(target=_plot_timeseries, args=(table_name, data, width, q))
     p.start()
+    rc = q.get()
     p.join()
 
-    return q.get()
+    return rc
 
 def plot_allandeviation(table_name, data, width):
     def _plot_allandeviation(table_name, data, width, q):
@@ -93,9 +94,10 @@ def plot_allandeviation(table_name, data, width):
 
     p = Process(target=_plot_allandeviation, args=(table_name, data, width, q))
     p.start()
+    rc = q.get()
     p.join()
 
-    return q.get()
+    return rc
 
 def plot_dop(table_name, hdop_data, pdop_data, vdop_data, width):
     def _plot_dop(table_name, hdop_data, pdop_data, vdop_data, width, q):
@@ -131,7 +133,8 @@ def plot_dop(table_name, hdop_data, pdop_data, vdop_data, width):
 
     p = Process(target=_plot_dop, args=(table_name, hdop_data, pdop_data, vdop_data, width, q))
     p.start()
+    rc = q.get()
     p.join()
 
-    return q.get()
+    return rc
 
