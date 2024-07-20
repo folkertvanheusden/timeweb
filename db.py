@@ -32,14 +32,20 @@ class time_series_db:
     def insert(self, ts, value):
         with self.lock:
             cur = self.db.cursor()
-            cur.execute('INSERT INTO %s(ts, value) VALUES(?, ?)' % self.table_name, (ts, value))
+            try:
+                cur.execute('INSERT INTO %s(ts, value) VALUES(?, ?)' % self.table_name, (ts, value))
+            except Exception as e:
+                print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
             cur.close()
             self.db.commit()
 
     def clean(self):
         with self.lock:
             cur = self.db.cursor()
-            cur.execute('DELETE FROM %s WHERE ts < ?' % self.table_name, (time.time() - self.max_age,))
+            try:
+                cur.execute('DELETE FROM %s WHERE ts < ?' % self.table_name, (time.time() - self.max_age,))
+            except Exception as e:
+                print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
             cur.close()
             self.db.commit()
 
