@@ -2,6 +2,7 @@
 
 # apt install python3-ntp
 
+import datetime
 import json
 import socket
 import threading
@@ -15,6 +16,20 @@ import ntp.ntpc
 import ntp.packet
 import ntp.util
 
+
+def NTP_time_string_to_ctime(s):
+    if s == None:
+        return '?'
+
+    dot = s.find('.')
+    v1 = int(s[2:dot], 16)
+    v2 = int(s[dot + 1:], 16)
+    ts = v1 + v2 / 1000000000.
+
+    UNIX_EPOCH = 2208988800
+    ts -= UNIX_EPOCH
+
+    return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f')
 
 class ntp_api(threading.Thread):
     def __init__(self, host, poll_interval, database):
@@ -71,10 +86,15 @@ class ntp_api(threading.Thread):
                     peer_variables = session.readvar(peer.associd)
                     info['peers'][peer.associd] = peer_variables
 
+                # replace peer id by host or address
                 peer_assoc = info['sysvars']['peer']
                 info['sysvars']['peer'] = info['peers'][peer_assoc]['srchost']
                 if info['sysvars']['peer'] == None:
                     info['sysvars']['peer'] = info['peers'][peer_assoc]['srcadr']
+
+                # replace clocks by human readable
+                info['sysvars']['reftime'] = NTP_time_string_to_ctime(info['sysvars']['reftime'])
+                info['sysvars']['clock'] = NTP_time_string_to_ctime(info['sysvars']['clock'])
 
                 # print(session.mrulist())
 
