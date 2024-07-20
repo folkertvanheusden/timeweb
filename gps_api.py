@@ -15,8 +15,18 @@ class gps_api(threading.Thread):
         self.gpsd_host = gpsd_host
 
         self.queues = []
-
         self.history = dict()
+
+        self.databases = []
+        #
+        self.clk_offset = time_series_db(database, 'pps_clk_offset', 100000)
+        self.databases.append(self.clk_offset)
+
+    def get_svg(self, table, width):
+        if table == 'pps_clk_offset':
+            return plot_allendeviation('Allan deviation', self.clk_offset.get(), width)
+
+        return None
 
     def register(self):
         q = queue.Queue(maxsize = 250)
@@ -68,6 +78,10 @@ class gps_api(threading.Thread):
 
                     j = json.loads(current)
                     self.history[j['class']] = current
+
+                    if j['class'] == 'PPS':
+                        clock_offset = int(j['clock_sec']) + int(j['clock_nsec']) / 1000000000.
+                        self.clk_offset.insert(time.time(), clock_offset)
 
             except Exception as e:
                 print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
