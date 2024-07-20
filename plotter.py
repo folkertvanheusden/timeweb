@@ -105,8 +105,8 @@ def plot_dop(table_name, hdop_data, pdop_data, vdop_data, width):
         plt.ylabel('value')
 
         plt.plot(xh, yh, label='hdop')
-        plt.plot(xp, yp, label='hdop')
-        plt.plot(xv, yv, label='hdop')
+        plt.plot(xp, yp, label='pdop')
+        plt.plot(xv, yv, label='vdop')
         plt.legend()
 
         buf = io.BytesIO()
