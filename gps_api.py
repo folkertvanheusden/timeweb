@@ -6,6 +6,7 @@ import socket
 import threading
 import time
 from db import time_series_db
+from plotter import plot_dop
 
 
 class gps_api(threading.Thread):
@@ -36,7 +37,12 @@ class gps_api(threading.Thread):
 
     def get_svg(self, table, width):
         if table == 'pps_clk_offset':
-            return plot_allendeviation('Allan deviation', self.clk_offset.get(), width)
+            #return plot_allendeviation('Allan deviation', self.clk_offset.get(), width)
+            # TODO
+            return ''
+
+        if table == 'dop':
+            return plot_dop('h/p/v dop', self.hdop.get(), self.pdop.get(), self.vdop.get(), width)
 
         return None
 

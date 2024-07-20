@@ -73,6 +73,13 @@ def ntp():
 
     return Response(stream(), mimetype='text/event-stream')
 
+@app.route('/graph-data-gps')
+def graph_data_gps():
+    global g
+    table = request.args.get('table', default = '', type = str)
+    width = request.args.get('width', default = '600', type = float)
+    return Response(g.get_svg(table, width), mimetype='image/svg+xml')
+
 @app.route('/graph-data-ntp')
 def graph_data_ntp():
     global n
@@ -97,12 +104,12 @@ function mode_to_str(mode) {
     return "?";
 }
 
-function refresh_ntp_graph(table) {
+function refresh_x_graph(target, table) {
     var element = document.getElementById(table);
     var positionInfo = element.getBoundingClientRect();
     var width = positionInfo.width;
 
-    var url = '/graph-data-ntp?table=' + table + "&width=" + width;
+    var url = '/graph-data-' + target + '?table=' + table + "&width=" + width;
 
     var xhr = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
     xhr.open('get', url, true);
@@ -115,12 +122,20 @@ function refresh_ntp_graph(table) {
 }
 
 function refresh_ntp_graphs() {
-    refresh_ntp_graph('ntp_offset');
+    refresh_x_graph('ntp', 'ntp_offset');
 }
 
 setInterval(refresh_ntp_graphs, %d);
-// start
 refresh_ntp_graphs();
+
+function refresh_gps_graphs() {
+    refresh_x_graph('gps', 'dop');
+
+    refresh_x_graph('gps', 'pps_clk_offset');
+}
+
+setInterval(refresh_gps_graphs, %d);
+refresh_gps_graphs();
 
 var eventSourceNTP = new EventSource("/ntp");
 eventSourceNTP.onmessage = function(e) {
@@ -230,7 +245,7 @@ eventSourceGPS.onmessage = function(e) {
         console.log(obj);
     }
 };
-''' % (graph_refresh_interval * 1000)
+''' % (graph_refresh_interval * 1000, graph_refresh_interval * 1000)
     return Response(code, mimetype="text/javascript")
 
 @app.route('/simple.css')
@@ -314,7 +329,7 @@ tbody th {
 
 @media (min-width: 1280px) {
     .columns {
-        column-count: 1;
+        column-count: 2;
         margin: auto;
         width: 1250px
     }
@@ -395,6 +410,10 @@ def slash():
 </section>
 
 <section>
+<div id="pps_clk_offset"></div>
+</section>
+
+<section>
 <table>
 <caption>satellites</caption>
 <thead><th>name</th><th>value</th><th>description</th></thead>
@@ -405,6 +424,10 @@ def slash():
 <tr><th>vdop</th><td id="vdop"></td><td>altitude dilution of precision</td></tr>
 </table>
 <div id="sats-container"></div>
+</section>
+
+<section>
+<div id="dop"></div>
 </section>
 
 <section>
@@ -434,4 +457,4 @@ def slash():
     return Response(page, mimetype="text/html")
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)

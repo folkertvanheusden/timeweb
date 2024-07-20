@@ -75,3 +75,44 @@ def plot_allan_deviation(table_name, data, width):
     p.join()
 
     return q.get()
+
+def plot_dop(table_name, hdop_data, pdop_data, vdop_data, width):
+    def _plot_dop(table_name, hdop_data, pdop_data, vdop_data, width, q):
+        mulx, muly = calc_plot_dimensions(width)
+
+        xh = [datetime.datetime.fromtimestamp(row['x']) for row in hdop_data]
+        xp = [datetime.datetime.fromtimestamp(row['x']) for row in pdop_data]
+        xv = [datetime.datetime.fromtimestamp(row['x']) for row in vdop_data]
+        yh = [row['y'] for row in hdop_data]
+        yp = [row['y'] for row in pdop_data]
+        yv = [row['y'] for row in vdop_data]
+
+        plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100 * mulx)
+        plt.title(table_name)
+        plt.xlabel('time')
+        plt.ylabel('value')
+
+        plt.plot(xh, yh, label='hdop')
+        plt.plot(xp, yp, label='hdop')
+        plt.plot(xv, yv, label='hdop')
+        plt.legend()
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='svg')
+
+        plt.close('all')
+
+        buf.seek(0)
+        data = buf.read()
+        buf.close()
+
+        q.put(data)
+
+    q = Queue()
+
+    p = Process(target=_plot_dop, args=(table_name, hdop_data, pdop_data, vdop_data, width, q))
+    p.start()
+    p.join()
+
+    return q.get()
+
