@@ -33,9 +33,9 @@ class ntp_api(threading.Thread):
     def get_data(self):
         return self.data
 
-    def get_svg(self, table):
+    def get_svg(self, table, width):
         if table == 'ntp_offset':
-            return plot_timeseries('ntp offset', self.ntp_offset.get())
+            return plot_timeseries('ntp offset', self.ntp_offset.get(), width)
 
         return None
 

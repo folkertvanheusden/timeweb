@@ -88,7 +88,8 @@ def ntp():
 def graph_data_ntp():
     global n
     table = request.args.get('table', default = '', type = str)
-    return Response(n.get_svg(table), mimetype='image/svg+xml')
+    width = request.args.get('width', default = '600', type = int)
+    return Response(n.get_svg(table, width), mimetype='image/svg+xml')
 
 @app.route('/code.js')
 def code():
@@ -108,11 +109,17 @@ function mode_to_str(mode) {
 }
 
 function refresh_ntp_graph(table) {
+    var element = document.getElementById(table);
+    var positionInfo = element.getBoundingClientRect();
+    var width = positionInfo.width;
+
+    var url = '/graph-data-ntp?table=' + table + "&width=" + width;
+
     var xhr = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-    xhr.open('get', '/graph-data-ntp?table=' + table, true);
+    xhr.open('get', url, true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
-            document.getElementById(table).innerHTML = xhr.responseText;
+            element.innerHTML = xhr.responseText;
         }
     }
     xhr.send();
@@ -359,8 +366,6 @@ def slash():
 <title>GPS/NTP monitor</title>
 <link href="/simple.css" rel="stylesheet" type="text/css">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 </head>
 <body>
 

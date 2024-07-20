@@ -9,12 +9,18 @@ from multiprocessing import Process, Queue
 
 matplotlib.use('agg')
 
-def plot_timeseries(table_name, data):
-    def _plot_timeseries(table_name, data, q):
+def plot_timeseries(table_name, data, width):
+    def _plot_timeseries(table_name, data, width, q):
+        mulx = width / 640
+
+        muly = mulx
+        if muly > 1:
+            muly = (muly - 1) / 2 + 1
+
         x = [datetime.datetime.fromtimestamp(row['x']) for row in data]
         y = [row['y'] for row in data]
 
-        plt.figure()
+        plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100)
         plt.title(table_name)
         plt.xlabel('time')
         plt.ylabel('value')
@@ -22,7 +28,7 @@ def plot_timeseries(table_name, data):
         plt.plot(x, y)
 
         buf = io.BytesIO()
-        plt.savefig(buf, format = 'svg')
+        plt.savefig(buf, format='svg')
 
         plt.close('all')
 
@@ -34,7 +40,7 @@ def plot_timeseries(table_name, data):
 
     q = Queue()
 
-    p = Process(target=_plot_timeseries, args=(table_name, data, q))
+    p = Process(target=_plot_timeseries, args=(table_name, data, width, q))
     p.start()
     p.join()
 
