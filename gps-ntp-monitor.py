@@ -287,6 +287,7 @@ main {
 
 table { border-collapse: collapse }
 td { padding: .25rem .5rem }
+th { padding: .25rem .5rem }
 thead {
   background-color: #333;
   color: white;
