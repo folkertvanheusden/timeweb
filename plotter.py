@@ -34,7 +34,7 @@ def plot_timeseries(table_name, data):
 
     q = Queue()
 
-    p = Process(target=_plot_timeseries, args=('table_name', data, q))
+    p = Process(target=_plot_timeseries, args=(table_name, data, q))
     p.start()
     p.join()
 
