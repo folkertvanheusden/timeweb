@@ -13,23 +13,24 @@ matplotlib.use('agg')
 
 
 def plot_timeseries(table_name, data):
+    x = [datetime.datetime.fromtimestamp(row['x']) for row in data]
+    y = [row['y'] for row in data]
+
     with lock:
         plt.figure()
         plt.title(table_name)
         plt.xlabel('time')
         plt.ylabel('value')
 
-        x = [datetime.datetime.fromtimestamp(row['x']) for row in data]
-        y = [row['y'] for row in data]
-
         plt.plot(x, y)
 
         buf = io.BytesIO()
         plt.savefig(buf, format = 'svg')
-        buf.seek(0)
-        data = buf.read()
-        buf.close()
 
         plt.close('all')
 
-        return data
+    buf.seek(0)
+    data = buf.read()
+    buf.close()
+
+    return data
