@@ -6,6 +6,7 @@ from flask import Flask, Response, request
 import json
 import socket
 import time
+from gps_api import gps_api
 from ntp_api import ntp_api
 
 ##### You may need to change these: #####
@@ -27,40 +28,28 @@ graph_refresh_interval = 30
 n = ntp_api(ntpsec_host, ntpsec_interval, database_file)
 n.start()
 
+g = gps_api(gpsd_host, database_file)
+g.start()
+
 app = Flask(__name__)
 
 @app.route('/gps')
 def gps():
     def stream():
-        s = None
-
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(gpsd_host)
+            global g
 
-            # start stream
-            s.send('?WATCH={"enable":true,"json":true}\r\n'.encode('ascii'))
-
-            buffer = ''
+            q = g.register()
 
             while True:
-                buffer += s.recv(65536).decode('ascii').replace('\r','')
-
-                lf = buffer.find('\n')
-                if lf == -1:
-                    continue
-
-                current = buffer[0:lf]
-                buffer = buffer[lf + 1:]
-
+                current = q.get()
                 yield 'data:' + current + '\n\n'
 
         except Exception as e:
             print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
             yield 'data:' + json.dumps({'error': str(e)}) + '\n\n'
 
-        if s != None:
-            s.close()
+        g.unregister(q)
 
     return Response(stream(), mimetype="text/event-stream")
 
