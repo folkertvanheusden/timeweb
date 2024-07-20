@@ -71,6 +71,11 @@ class ntp_api(threading.Thread):
                     peer_variables = session.readvar(peer.associd)
                     info['peers'][peer.associd] = peer_variables
 
+                peer_assoc = info['sysvars']['peer']
+                info['sysvars']['peer'] = info['peers'][peer_assoc]['srchost']
+                if info['sysvars']['peer'] == None:
+                    info['sysvars']['peer'] = info['peers'][peer_assoc]['srcadr']
+
                 # print(session.mrulist())
 
                 self.data = info
