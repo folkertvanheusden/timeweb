@@ -21,6 +21,18 @@ class gps_api(threading.Thread):
         #
         self.clk_offset = time_series_db(database, 'pps_clk_offset', 100000)
         self.databases.append(self.clk_offset)
+        #
+        self.hdop = time_series_db(database, 'gps_hdop', 86400)
+        self.databases.append(self.hdop)
+        self.pdop = time_series_db(database, 'gps_pdop', 86400)
+        self.databases.append(self.pdop)
+        self.vdop = time_series_db(database, 'gps_vdop', 86400)
+        self.databases.append(self.vdop)
+        #
+        self.sat_seen = time_series_db(database, 'sat_seen', 86400)
+        self.databases.append(self.sat_seen)
+        self.sat_used = time_series_db(database, 'sat_used', 86400)
+        self.databases.append(self.sat_used)
 
     def get_svg(self, table, width):
         if table == 'pps_clk_offset':
@@ -79,9 +91,19 @@ class gps_api(threading.Thread):
                     j = json.loads(current)
                     self.history[j['class']] = current
 
+                    now = time.time()
+
                     if j['class'] == 'PPS':
                         clock_offset = int(j['clock_sec']) + int(j['clock_nsec']) / 1000000000.
-                        self.clk_offset.insert(time.time(), clock_offset)
+                        self.clk_offset.insert(now, clock_offset)
+
+                    elif j['class'] == 'SKY':
+                        self.hdop.insert(now, float(j['hdop']))
+                        self.vdop.insert(now, float(j['vdop']))
+                        self.pdop.insert(now, float(j['pdop']))
+
+                        self.sat_seen.insert(now, float(j['nSat']))
+                        self.sat_used.insert(now, float(j['uSat']))
 
             except Exception as e:
                 print(f'Exception: {e}, line number: {e.__traceback__.tb_lineno}')
