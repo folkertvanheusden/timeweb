@@ -88,7 +88,7 @@ def ntp():
 def graph_data_ntp():
     global n
     table = request.args.get('table', default = '', type = str)
-    width = request.args.get('width', default = '600', type = int)
+    width = request.args.get('width', default = '600', type = float)
     return Response(n.get_svg(table, width), mimetype='image/svg+xml')
 
 @app.route('/code.js')

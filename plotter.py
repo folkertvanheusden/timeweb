@@ -11,16 +11,18 @@ matplotlib.use('agg')
 
 def plot_timeseries(table_name, data, width):
     def _plot_timeseries(table_name, data, width, q):
-        mulx = width / 640
+        mulx = float(width) / 640.
 
         muly = mulx
-        if muly > 1:
+        if muly > 1.:
             muly = (muly - 1) / 2 + 1
+
+        # print(width, mulx, muly)
 
         x = [datetime.datetime.fromtimestamp(row['x']) for row in data]
         y = [row['y'] for row in data]
 
-        plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100)
+        plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100 * mulx)
         plt.title(table_name)
         plt.xlabel('time')
         plt.ylabel('value')
