@@ -377,7 +377,7 @@ def slash():
 
 <section>
 <h2>GPSd</h2>
-<div id="devices-container"></div>
+<div id="devices-container">rendering...</div>
 </section>
 
 <section>
@@ -406,11 +406,11 @@ def slash():
 </section>
 
 <section>
-<div id="pps-container"></div>
+<div id="pps-container">rendering...</div>
 </section>
 
 <section>
-<div id="pps_clk_offset"></div>
+<div id="pps_clk_offset">rendering...</div>
 </section>
 
 <section>
@@ -423,26 +423,26 @@ def slash():
 <tr><th>pdop</th><td id="pdop"></td><td>spherical dilution of precision</td></tr>
 <tr><th>vdop</th><td id="vdop"></td><td>altitude dilution of precision</td></tr>
 </table>
-<div id="sats-container"></div>
+<div id="sats-container">rendering...</div>
 </section>
 
 <section>
-<div id="dop"></div>
+<div id="dop">rendering...</div>
 </section>
 
 <section>
 <h2>NTP general</h2>
-<div id="ntp-general-container"></div>
+<div id="ntp-general-container">rendering...</div>
 </section>
 
 <section>
 <h2>NTP peers</h2>
-<div id="ntp-peers-container"></div>
+<div id="ntp-peers-container">rendering...</div>
 </section>
 
 <section>
 <h2>Offsets</h2>
-<div id="ntp_offset"></div>
+<div id="ntp_offset">rendering...</div>
 </section>
 
 <footer>
