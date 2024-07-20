@@ -7,6 +7,7 @@ import socket
 import threading
 import time
 from db import time_series_db
+from plotter import plot_timeseries
 
 import ntp.control
 import ntp.magic
@@ -34,7 +35,7 @@ class ntp_api(threading.Thread):
 
     def get_svg(self, table):
         if table == 'ntp_offset':
-            return self.ntp_offset.get_svg()
+            return plot_timeseries('ntp offset', self.ntp_offset.get())
 
         return None
 

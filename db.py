@@ -1,14 +1,9 @@
 #! /usr/bin/python3
 
-import datetime
-import io
-import matplotlib
-import matplotlib.pyplot as plt
 import sqlite3
 import threading
 import time
 
-matplotlib.use('agg')
 
 class time_series_db:
     def __init__(self, database_file, table_name, max_age):
@@ -57,27 +52,6 @@ class time_series_db:
             self.db.commit()
 
             return rows
-
-    def get_svg(self):
-        plt.figure()
-        plt.title(self.table_name)
-        plt.xlabel('time')
-        plt.ylabel('value')
-
-        data = self.get()
-
-        x = [datetime.datetime.fromtimestamp(row['x']) for row in data]
-        y = [row['y'] for row in data]
-
-        plt.plot(x, y)
-
-        buf = io.BytesIO()
-        plt.savefig(buf, format = 'svg')
-        buf.seek(0)
-        data = buf.read()
-        buf.close()
-
-        return data
 
 if __name__ == "__main__":
     db = time_series_db('timeweb.db', 'offset', 86400)
