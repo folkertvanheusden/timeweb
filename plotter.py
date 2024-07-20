@@ -8,6 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 # matplotlib is not thread safe
 from multiprocessing import Process, Queue
+import numpy as np
 
 matplotlib.use('agg')
 
@@ -53,24 +54,35 @@ def plot_timeseries(table_name, data, width):
 
     return q.get()
 
-def plot_allan_deviation(table_name, data, width):
-    def _plot_allan_deviation(table_name, data, width, q):
+def plot_allandeviation(table_name, data, width):
+    def _plot_allandeviation(table_name, data, width, q):
         mulx, muly = calc_plot_dimensions(width)
 
-        # TODO
+        values = [float(row['y']) for row in data]
+        a = allantools.Dataset(data=np.asarray(values),
+                               data_type='phase',
+                               rate=1)  # sample rate in Hz of the input data
+        a.compute('gradev')
+
+        b = allantools.Plot(no_display=True)
+        b.ax.set_xlabel("Tau (s)")
+        b.plt.title(table_name)
+        b.plot(a, errorbars=True, grid=True)
 
         buf = io.BytesIO()
-        plt.savefig(buf, format='svg')
-
+        b.plt.savefig(buf, format='svg')
         buf.seek(0)
         data = buf.read()
-        buf.close()
 
         q.put(data)
 
+        buf.close()
+        b.plt.close('all')
+        del b
+
     q = Queue()
 
-    p = Process(target=_plot_allan_deviation, args=(table_name, data, width, q))
+    p = Process(target=_plot_allandeviation, args=(table_name, data, width, q))
     p.start()
     p.join()
 
