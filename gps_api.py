@@ -98,9 +98,15 @@ class gps_api(threading.Thread):
                         self.clk_offset.insert(now, clock_offset)
 
                     elif j['class'] == 'SKY':
-                        self.hdop.insert(now, float(j['hdop']))
-                        self.vdop.insert(now, float(j['vdop']))
-                        self.pdop.insert(now, float(j['pdop']))
+                        hdop = float(j['hdop'])
+                        if hdop < 99:
+                            self.hdop.insert(now, hdop)
+                        vdop = float(j['vdop'])
+                        if vdop < 99:
+                            self.vdop.insert(now, vdop)
+                        pdop = float(j['pdop'])
+                        if pdop < 99:
+                            self.pdop.insert(now, pdop)
 
                         self.sat_seen.insert(now, float(j['nSat']))
                         self.sat_used.insert(now, float(j['uSat']))
