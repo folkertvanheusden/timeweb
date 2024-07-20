@@ -6,7 +6,7 @@ import socket
 import threading
 import time
 from db import time_series_db
-from plotter import plot_dop, plot_allandeviation
+from plotter import plot_dop, plot_allandeviation, plot_polar
 
 
 class gps_api(threading.Thread):
@@ -35,12 +35,18 @@ class gps_api(threading.Thread):
         self.sat_used = time_series_db(database, 'sat_used', 86400)
         self.databases.append(self.sat_used)
 
+        # satellites
+        self.sats = []
+
     def get_svg(self, table, width):
         if table == 'pps_clk_offset':
             return plot_allandeviation('Allan deviation', self.clk_offset.get(), width)
 
         if table == 'dop':
             return plot_dop('h/p/v dop', self.hdop.get(), self.pdop.get(), self.vdop.get(), width)
+
+        if table == 'polar':
+            return plot_polar('azimuth/elevation', self.sats, width)
 
         print(f'TABLE {table} not known!')
 
@@ -116,6 +122,8 @@ class gps_api(threading.Thread):
 
                         self.sat_seen.insert(now, float(j['nSat']))
                         self.sat_used.insert(now, float(j['uSat']))
+
+                        self.sats = j['satellites']
 
             except Exception as e:
                 print(f'Exception (gps_api.py): {e}, line number: {e.__traceback__.tb_lineno}')

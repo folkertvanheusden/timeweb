@@ -21,7 +21,7 @@ gpsd_host = ('time.lan.nurd.space', 2947)
 database_file = 'timeweb.db'
 
 # how often to refresh graphs (seconds)
-graph_refresh_interval = 30
+graph_refresh_interval = 15
 
 #########################################
 
@@ -128,6 +128,7 @@ var interval = %d;
 function f_ntp_offset    () { refresh_x_graph('ntp', 'ntp_offset'); }
 function f_dop           () { refresh_x_graph('gps', 'dop'); }
 function f_pps_clk_offset() { refresh_x_graph('gps', 'pps_clk_offset'); }
+function f_polar         () { refresh_x_graph('gps', 'polar'); }
 
 f_ntp_offset();
 setInterval(f_ntp_offset, interval);
@@ -137,6 +138,9 @@ setInterval(f_dop, interval);
 
 f_pps_clk_offset();
 setInterval(f_pps_clk_offset, interval);
+
+f_polar();
+setInterval(f_polar, interval);
 
 var eventSourceNTP = new EventSource("/ntp");
 eventSourceNTP.onmessage = function(e) {
@@ -424,11 +428,18 @@ def slash():
 <tr><th>pdop</th><td id="pdop"></td><td>spherical dilution of precision</td></tr>
 <tr><th>vdop</th><td id="vdop"></td><td>altitude dilution of precision</td></tr>
 </table>
-<div id="sats-container">rendering...</div>
 </section>
 
 <section>
 <div id="dop">rendering...</div>
+</section>
+
+<section>
+<div id="sats-container">rendering...</div>
+</section>
+
+<section>
+<div id="polar">rendering...</div>
 </section>
 
 <section>

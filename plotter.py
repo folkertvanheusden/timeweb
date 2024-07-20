@@ -138,3 +138,42 @@ def plot_dop(table_name, hdop_data, pdop_data, vdop_data, width):
 
     return rc
 
+def plot_polar(table_name, satellites, width):
+    def _plot_polar(table_name, satellites, width, q):
+        mulx, muly = calc_plot_dimensions(width)
+
+        fig = plt.figure()
+        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+        ax.set_theta_zero_location('N')
+        ax.set_theta_direction(-1)
+        ax.set_yticks(range(0, 90+10, 30))                   # Define the yticks
+        yLabel = ['90', '60','30','0']
+        ax.set_yticklabels(yLabel)
+        ax.set_xticks(np.arange(0, np.pi*2, np.pi/2))                   # Define the xticks
+        xLabel = ['N', 'E', 'S', 'W']
+        ax.set_xticklabels(xLabel)
+
+        for sat in satellites:
+            ax.annotate(str(sat['PRN']),
+                    xy=(sat['az']*np.pi/180, 90-sat['el']),  # theta, radius
+                    bbox=dict(boxstyle="round", fc = matplotlib.colors.hsv_to_rgb((sat['ss']/50, 1.0, 0.5)), alpha = 0.5),
+                    horizontalalignment='center',
+                    verticalalignment='bottom')
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='svg')
+
+        plt.close('all')
+
+        buf.seek(0)
+        q.put(buf.read())
+        buf.close()
+
+    q = Queue()
+
+    p = Process(target=_plot_polar, args=(table_name, satellites, width, q))
+    p.start()
+    rc = q.get()
+    p.join()
+
+    return rc
