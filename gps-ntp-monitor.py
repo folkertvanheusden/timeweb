@@ -11,10 +11,10 @@ from ntp_api import ntp_api
 
 from configuration import *
 
-n = ntp_api(ntpsec_host, ntpsec_interval, database_file)
+n = ntp_api(ntpsec_host, ntpsec_interval, database_file, max_data_age)
 n.start()
 
-g = gps_api(gpsd_host, database_file)
+g = gps_api(gpsd_host, database_file, max_data_age)
 g.start()
 
 app = Flask(__name__)

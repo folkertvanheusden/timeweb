@@ -10,7 +10,7 @@ from plotter import plot_dop, plot_allandeviation, plot_polar
 
 
 class gps_api(threading.Thread):
-    def __init__(self, gpsd_host, database):
+    def __init__(self, gpsd_host, database, max_data_age):
         threading.Thread.__init__(self)
 
         self.gpsd_host = gpsd_host
@@ -20,19 +20,19 @@ class gps_api(threading.Thread):
 
         self.databases = []
         #
-        self.clk_offset = time_series_db(database, 'pps_clk_offset', 100000)
+        self.clk_offset = time_series_db(database, 'pps_clk_offset', 100000 * max_data_age)
         self.databases.append(self.clk_offset)
         #
-        self.hdop = time_series_db(database, 'gps_hdop', 86400)
+        self.hdop = time_series_db(database, 'gps_hdop', 86400 * max_data_age)
         self.databases.append(self.hdop)
-        self.pdop = time_series_db(database, 'gps_pdop', 86400)
+        self.pdop = time_series_db(database, 'gps_pdop', 86400 * max_data_age)
         self.databases.append(self.pdop)
-        self.vdop = time_series_db(database, 'gps_vdop', 86400)
+        self.vdop = time_series_db(database, 'gps_vdop', 86400 * max_data_age)
         self.databases.append(self.vdop)
         #
-        self.sat_seen = time_series_db(database, 'sat_seen', 86400)
+        self.sat_seen = time_series_db(database, 'sat_seen', 86400 * max_data_age)
         self.databases.append(self.sat_seen)
-        self.sat_used = time_series_db(database, 'sat_used', 86400)
+        self.sat_used = time_series_db(database, 'sat_used', 86400 * max_data_age)
         self.databases.append(self.sat_used)
 
         # satellites

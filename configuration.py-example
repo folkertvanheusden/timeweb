@@ -8,6 +8,8 @@ gpsd_host = ('localhost', 2947)
 
 # time series database. set a filename here to make it persistent.
 database_file = 'timeweb.db'
+# in days - it configures when data is purged from the database
+max_data_age = 1.0
 
 # how often to refresh graphs (seconds)
 graph_refresh_interval = 15

@@ -32,7 +32,7 @@ def NTP_time_string_to_ctime(s):
     return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f')
 
 class ntp_api(threading.Thread):
-    def __init__(self, host, poll_interval, database):
+    def __init__(self, host, poll_interval, database, max_data_age):
         threading.Thread.__init__(self)
         self.host = host
         self.poll_interval = poll_interval
@@ -42,7 +42,7 @@ class ntp_api(threading.Thread):
 
         self.databases = []
         #
-        self.ntp_offset = time_series_db(database, 'offset', 86400)
+        self.ntp_offset = time_series_db(database, 'offset', 86400 * max_data_age)
         self.databases.append(self.ntp_offset)
 
     def get_data(self):
