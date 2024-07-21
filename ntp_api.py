@@ -106,21 +106,26 @@ class ntp_api(threading.Thread):
                 info['sysvars']['reftime'] = NTP_time_string_to_ctime(info['sysvars']['reftime'])
                 info['sysvars']['clock'] = NTP_time_string_to_ctime(info['sysvars']['clock'])
 
-                mrulist = session.mrulist()
-                info['mrulist'] = { 'entries': [], 'ts': mrulist.now }
-                entries = []
-                for entry in mrulist.entries:
-                    entry = {
-                            'addr': entry.addr,
-                            'first': NTP_time_string_to_ctime(entry.first), 'last': NTP_time_string_to_ctime(entry.last),
-                            'mode_version': entry.mv,  # TODO: split?
-                            'restrictions': entry.rs,
-                            'packet_count': entry.ct,
-                            'score': entry.sc,
-                            'dropped': entry.dr
-                            }
-                    entries.append(entry)
-                info['mrulist']['entries'] = sorted(entries, key=lambda d: d['last'], reverse=True)[0:self.max_mru_list_size]
+                try:
+                    mrulist = session.mrulist()
+                    info['mrulist'] = { 'entries': [], 'ts': mrulist.now }
+                    entries = []
+                    for entry in mrulist.entries:
+                        entry = {
+                                'addr': entry.addr,
+                                'first': NTP_time_string_to_ctime(entry.first), 'last': NTP_time_string_to_ctime(entry.last),
+                                'mode_version': entry.mv,  # TODO: split?
+                                'restrictions': entry.rs,
+                                'packet_count': entry.ct,
+                                'score': entry.sc,
+                                'dropped': entry.dr
+                                }
+                        entries.append(entry)
+                    info['mrulist']['entries'] = sorted(entries, key=lambda d: d['last'], reverse=True)[0:self.max_mru_list_size]
+
+                except Exception as e:
+                    print(f'Problem requesting MRU list from NTPSEC: {e}')
+                    info['mrulist'] = { 'entries': [], 'ts': None }
 
                 self.data = info
 
