@@ -7,14 +7,14 @@ Required:
 - allantools    (pip)
 
 And it is only useful if you run gpsd and ntpsec.
+In gps-ntp-monitor.py change the lines after 'you may need to change
+these' to suit your environment.
+Note that some tables/graphs may be empty when you open the website of
+it just after it was started for the first time. That's because it
+needs to collect some initial data first.
 
-
-In gps-ntp-monitor.py you may need to change the following two lines:
-
-    ntpsec_host = 'localhost'
-    gpsd_host = ('localhost', 2947)
-
-Replace localhost and/or port if you have ntpsec and/or gpsd running on non-standard hosts/ports.
+If you monitor a remote ntpsec/gpsd, do not forget to allow remote
+connections/monitoring in their configurations.
 
 
 Demo: http://gateway.vanheusden.com:5000/
