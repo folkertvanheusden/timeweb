@@ -84,15 +84,21 @@ class ntp_api(threading.Thread):
                 peers = session.readstat()
                 for peer in peers:
                     peer_variables = session.readvar(peer.associd)
+                    peer_variables['reftime'] = NTP_time_string_to_ctime(peer_variables['reftime'])
+                    peer_variables['rec'] = NTP_time_string_to_ctime(peer_variables['rec'])
+                    peer_variables['xmt'] = NTP_time_string_to_ctime(peer_variables['xmt'])
                     info['peers'][peer.associd] = peer_variables
 
                 # replace peer id by host or address
                 if 'peer' in info['sysvars']:
                     peer_assoc = info['sysvars']['peer']
                     if peer_assoc in info['peers']:
+                        info['sysvars']['assoc'] = peer_assoc
                         info['sysvars']['peer'] = info['peers'][peer_assoc]['srchost'] if 'srchost' in info['peers'][peer_assoc] else None
                         if info['sysvars']['peer'] == None:
                             info['sysvars']['peer'] = info['peers'][peer_assoc]['srcadr']
+                else:
+                    info['sysvars']['assoc'] = None
 
                 # replace clocks by human readable
                 info['sysvars']['reftime'] = NTP_time_string_to_ctime(info['sysvars']['reftime'])

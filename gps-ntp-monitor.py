@@ -151,18 +151,35 @@ eventSourceNTP.onmessage = function(e) {
 
     let peerstable = '<table>';
     peerstable += '<caption>NTP peers</caption>';
-    peerstable += '<thead><th>host</th><th>refid</th><th>stratum</th><th>unreach</th><th>offset</th><th>jitter</th></thead>';
+    peerstable += '<thead><th>host</th><th>refid</th><th>stratum</th><th>offset</th><th>jitter</th></thead>';
     for (const [key, value] of Object.entries(obj['peers'])) {
         var host = value.srchost;
         if (host === undefined)
             host = value.srcadr;
-        peerstable += `<tr><td>${host}</td><td>${value.refid}</td><td>${value.stratum}</td><td>${value.unreach}</td><td>${value.offset}</td><td>${value.jitter}</td></tr>`;
+        peerstable += `<tr><td>${host}</td><td>${value.refid}</td><td>${value.stratum}</td><td>${value.offset}</td><td>${value.jitter}</td></tr>`;
     };
 
     peerstable += '</table>';
 
     const peerstable_container = document.getElementById('ntp-peers-container');
     peerstable_container.innerHTML = peerstable;
+
+    // details for selected peer
+
+    var associd = obj['sysvars']['assoc']
+
+    if (associd !== undefined) {
+        let aptable = '<table>';
+        aptable += '<caption>details for selected peer</caption>';
+        aptable += '<thead><th>name</th><th>value</th></thead>';
+        for (const [key, value] of Object.entries(obj['peers'][associd])) {
+            aptable += `<tr><th>${key}</th><td>${value}</td></tr>`;
+        };
+        aptable += '</table>';
+
+        const aptable_container = document.getElementById('ntp-selected-peer-container');
+        aptable_container.innerHTML = aptable;
+    }
 };
 
 var eventSourceGPS = new EventSource("/gps");
@@ -438,6 +455,10 @@ def slash():
 
 <section>
 <div id="ntp-peers-container">rendering...</div>
+</section>
+
+<section>
+<div id="ntp-selected-peer-container">none yet</div>
 </section>
 
 <footer>
