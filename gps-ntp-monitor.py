@@ -269,105 +269,13 @@ def css():
 
 @app.route('/')
 def slash():
-    page = '''<!DOCTYPE html>
-<html>
-<head>
-<script type="module" src="/code.js"></script>
-<title>GPS/NTP monitor</title>
-<link href="/simple.css" rel="stylesheet" type="text/css">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no">
-</head>
-<body>
-
-<main class="columns">
-
-<section>
-<div id="devices-container">rendering...</div>
-</section>
-
-<section>
-<table>
-<caption>position</caption>
-<thead><th>name</th><th>value</th><th>description</th></thead>
-<tr><th>time</th><td id="time"></td></tr>
-<tr><th>status</th><td id="status"><td></tr>
-<tr><th>fix mode</th><td id="mode"></td></tr>
-<tr><th>latitude</th><td id="latitude"></td><td>+ is west</td></tr>
-<tr><th>longitude</th><td id="longitude"></td><td>+ is north</td></tr>
-<tr><th>altitude</th><td id="altitude"></td><td>only with 3D fix</td></tr>
-<tr><th>epx</th><td id="epx"></td><td>longitude error, in meters</td></tr>
-<tr><th>epy</th><td id="epy"></td><td>latitude error, in meters</td></tr>
-<tr><th>epv</th><td id="epv"></td><td>vertical error, in meters</td></tr>
-<tr><th>ept</th><td id="ept"></td><td>timestamp error, in seconds</td></tr>
-<tr><th>eps</th><td id="eps"></td></tr>
-<tr><th>epc</th><td id="epc"></td></tr>
-<tr><th>eph</th><td id="eph"></td></tr>
-<tr><th>track</th><td id="track"></td><td>course over ground, degrees from north</tr>
-<tr><th>geoidSep</th><td id="geoidSep"></td></tr>
-<tr><th>magvar</th><td id="magvar"></td></tr>
-<tr><th>speed</th><td id="speed"></td></tr>
-<tr><th>sep</th><td id="sep"></td></tr>
-</table>
-</section>
-
-<section>
-<div id="pps-container">rendering...</div>
-</section>
-
-<section>
-<div id="pps_clk_offset">rendering...</div>
-</section>
-
-<section>
-<table>
-<caption>satellites</caption>
-<thead><th>name</th><th>value</th><th>description</th></thead>
-<tr><th>#</th><td id="nsat"></td></tr>
-<tr><th># used</th><td id="usat"></td></tr>
-<tr><th>hdop</th><td id="hdop"></td><td>horizontal dilution of precision</td></tr>
-<tr><th>pdop</th><td id="pdop"></td><td>spherical dilution of precision</td></tr>
-<tr><th>vdop</th><td id="vdop"></td><td>altitude dilution of precision</td></tr>
-</table>
-</section>
-
-<section>
-<div id="dop">rendering...</div>
-</section>
-
-<section>
-<div id="sats-container">rendering...</div>
-</section>
-
-<section>
-<div id="polar">rendering...</div>
-</section>
-
-<section>
-<div id="ntp-general-container">rendering...</div>
-</section>
-
-<section>
-<h2>Offsets</h2>
-<div id="ntp_offset">rendering...</div>
-</section>
-
-<section>
-<div id="ntp-peers-container">rendering...</div>
-</section>
-
-<section>
-<div id="ntp-selected-peer-container">none yet</div>
-</section>
-
-<footer>
-<h1><a href="https://github.com/folkertvanheusden/timeweb/">TimeWeb</a></h1>
-</footer>
-
-</main>
-
-</body>
-</html>
-'''
+    try:
+        fh = open('index.html', 'r')
+        page = fh.read()
+        fh.close()
+    except Exception as e:
+        print(f'Exception (main): {e}, line number: {e.__traceback__.tb_lineno}')
+        page = ''
     return Response(page, mimetype="text/html")
 
 if __name__ == "__main__":
