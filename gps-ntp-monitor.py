@@ -73,42 +73,30 @@ def graph_data_ntp():
     width = request.args.get('width', default = '600', type = float)
     return Response(n.get_svg(table, width), mimetype='image/svg+xml')
 
+def load_file(file):
+    try:
+        fh = open(file, 'r')
+        page = fh.read()
+        fh.close()
+        return page
+    except Exception as e:
+        print(f'Exception (main, for {file}): {e}, line number: {e.__traceback__.tb_lineno}')
+    return ''
+
 @app.route('/code.js')
 def code():
     global graph_refresh_interval
-
-    try:
-        fh = open('code.js', 'r')
-        page = fh.read()
-        fh.close()
-        interval_string = f'{graph_refresh_interval * 1000}'
-        page = page.replace('___REPLACE_ME___', interval_string)
-    except Exception as e:
-        print(f'Exception (main): {e}, line number: {e.__traceback__.tb_lineno}')
-        page = ''
+    interval_string = f'{graph_refresh_interval * 1000}'
+    page = load_file('code.js').replace('___REPLACE_ME___', interval_string)
     return Response(page, mimetype="text/javascript")
 
 @app.route('/simple.css')
 def css():
-    try:
-        fh = open('simple.css', 'r')
-        page = fh.read()
-        fh.close()
-    except Exception as e:
-        print(f'Exception (main): {e}, line number: {e.__traceback__.tb_lineno}')
-        page = ''
-    return Response(page, mimetype="text/css")
+    return Response(load_file('simple.css'), mimetype="text/css")
 
 @app.route('/')
 def slash():
-    try:
-        fh = open('index.html', 'r')
-        page = fh.read()
-        fh.close()
-    except Exception as e:
-        print(f'Exception (main): {e}, line number: {e.__traceback__.tb_lineno}')
-        page = ''
-    return Response(page, mimetype="text/html")
+    return Response(load_file('index.html'), mimetype="text/html")
 
 if __name__ == "__main__":
     app.run(host=listen_interface, port=listen_port, debug=True, threaded=True)
