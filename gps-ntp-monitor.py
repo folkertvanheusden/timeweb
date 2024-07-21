@@ -23,6 +23,9 @@ database_file = 'timeweb.db'
 # how often to refresh graphs (seconds)
 graph_refresh_interval = 15
 
+listen_interface = '0.0.0.0'
+listen_port = 5000
+
 #########################################
 
 n = ntp_api(ntpsec_host, ntpsec_interval, database_file)
@@ -467,4 +470,4 @@ def slash():
     return Response(page, mimetype="text/html")
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
+    app.run(host=listen_interface, port=listen_port, debug=True, threaded=True)
