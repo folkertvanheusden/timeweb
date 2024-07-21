@@ -2,7 +2,7 @@
 
 ntpsec_host = 'localhost'
 # how often to refresh NTP data (seconds)
-ntpsec_interval = 3
+ntpsec_interval = 1
 
 gpsd_host = ('localhost', 2947)
 
