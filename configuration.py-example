@@ -14,5 +14,8 @@ max_data_age = 1.0
 # how often to refresh graphs (seconds)
 graph_refresh_interval = 15
 
+# mru list max. size (list of clients)
+max_mru_list_size = 20
+
 listen_interface = '0.0.0.0'
 listen_port = 5000

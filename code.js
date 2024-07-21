@@ -100,6 +100,24 @@ eventSourceNTP.onmessage = function(e) {
         const aptable_container = document.getElementById('ntp-selected-peer-container');
         aptable_container.innerHTML = aptable;
     }
+
+    // MRU list
+
+    var mrulist = obj['mrulist'];
+    console.log(mrulist);
+
+    let mrutable = '<table>';
+    mrutable += '<caption>NTP network peers (' + new Date(mrulist['ts'] * 1000) + ')</caption>';
+    mrutable += '<thead><th>address</th><th colspan=2>first</th><th colspan=2>last</th></thead>';
+    mrutable += '<thead><th></th><th>mode/version</th><th>packet count</th><th>score</th><th>dropped</th></thead>';
+    for (const [key, value] of Object.entries(mrulist['entries'])) {
+        mrutable += `<tr><td>${value.addr}</td><td colspan=2>${value.first}</td><td colspan=2>${value.last}</td></tr>`;
+        mrutable += `<tr><td></td><td>${value.mode_version}</td><td>${value.packet_count}</td><td>${value.score}</td><td>${value.dropped}</td></tr>`;
+    };
+    mrutable += '</table>';
+
+    const mrutable_container = document.getElementById('ntp-mru-list-container');
+    mrutable_container.innerHTML = mrutable;
 };
 
 var eventSourceGPS = new EventSource("/gps");

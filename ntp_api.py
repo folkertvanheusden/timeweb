@@ -32,10 +32,12 @@ def NTP_time_string_to_ctime(s):
     return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f')
 
 class ntp_api(threading.Thread):
-    def __init__(self, host, poll_interval, database, max_data_age):
+    def __init__(self, host, poll_interval, database, max_data_age, max_mru_list_size):
         threading.Thread.__init__(self)
         self.host = host
         self.poll_interval = poll_interval
+
+        self.max_mru_list_size = max_mru_list_size
 
         # empty initially
         self.data = dict()
@@ -104,7 +106,21 @@ class ntp_api(threading.Thread):
                 info['sysvars']['reftime'] = NTP_time_string_to_ctime(info['sysvars']['reftime'])
                 info['sysvars']['clock'] = NTP_time_string_to_ctime(info['sysvars']['clock'])
 
-                # print(session.mrulist())
+                mrulist = session.mrulist()
+                info['mrulist'] = { 'entries': [], 'ts': mrulist.now }
+                entries = []
+                for entry in mrulist.entries:
+                    entry = {
+                            'addr': entry.addr,
+                            'first': NTP_time_string_to_ctime(entry.first), 'last': NTP_time_string_to_ctime(entry.last),
+                            'mode_version': entry.mv,  # TODO: split?
+                            'restrictions': entry.rs,
+                            'packet_count': entry.ct,
+                            'score': entry.sc,
+                            'dropped': entry.dr
+                            }
+                    entries.append(entry)
+                info['mrulist']['entries'] = sorted(entries, key=lambda d: d['last'])[0:self.max_mru_list_size]
 
                 self.data = info
 
@@ -124,7 +140,7 @@ class ntp_api(threading.Thread):
                 time.sleep(1)
 
 if __name__ == "__main__":
-    n = ntp_api('localhost', 3)
+    n = ntp_api('localhost', 3, 20)
     n.start()
 
     while True:
