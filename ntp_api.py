@@ -108,11 +108,11 @@ class ntp_api(threading.Thread):
                     for d in self.databases:
                         d.clean()
 
+                del session
+
             except Exception as e:
                 print(f'Exception (ntp_api.py): {e}, line number: {e.__traceback__.tb_lineno}')
                 time.sleep(1)
-
-            time.sleep(self.poll_interval)
 
 if __name__ == "__main__":
     n = ntp_api('localhost', 3)
