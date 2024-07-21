@@ -21,8 +21,8 @@ function refresh_x_graph(target, table) {
     var xhr = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
     xhr.open('get', url, true);
     xhr.onreadystatechange = function() {
-        console.log(target + '|' + table + ': ' + xhr.readyState + ' ' + xhr.status);
         if (xhr.readyState == 4 && xhr.status == 200) {
+	    console.log(url + ' refreshed')
             element.innerHTML = xhr.responseText;
         }
     }
@@ -104,7 +104,6 @@ eventSourceNTP.onmessage = function(e) {
     // MRU list
 
     var mrulist = obj['mrulist'];
-    console.log(mrulist);
 
     let mrutable = '<table>';
     mrutable += '<caption>NTP network peers (' + new Date(mrulist['ts'] * 1000) + ')</caption>';
