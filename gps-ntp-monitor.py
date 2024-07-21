@@ -14,7 +14,7 @@ from configuration import *
 n = ntp_api(ntpsec_host, ntpsec_interval, database_file, max_data_age, max_mru_list_size)
 n.start()
 
-g = gps_api(gpsd_host, database_file, max_data_age)
+g = gps_api(gpsd_host, database_file, max_data_age, hide_position)
 g.start()
 
 app = Flask(__name__)

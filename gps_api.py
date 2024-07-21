@@ -10,13 +10,15 @@ from plotter import plot_dop, plot_allandeviation, plot_polar
 
 
 class gps_api(threading.Thread):
-    def __init__(self, gpsd_host, database, max_data_age):
+    def __init__(self, gpsd_host, database, max_data_age, hide_position):
         threading.Thread.__init__(self)
 
         self.gpsd_host = gpsd_host
 
         self.queues = []
         self.history = dict()
+
+        self.hide_position = hide_position
 
         self.databases = []
         #
@@ -89,19 +91,7 @@ class gps_api(threading.Thread):
 
                     forget = []
 
-                    for q in self.queues:
-                        try:
-                            q.put_nowait(current)
-
-                        except queue.Full:
-                            forget.append(q)
-
-                    # in case a client "forgets" to unregister
-                    for f in forget:
-                        self.queues.remove(f)
-
                     j = json.loads(current)
-                    self.history[j['class']] = current
 
                     now = time.time()
 
@@ -124,6 +114,26 @@ class gps_api(threading.Thread):
                         self.sat_used.insert(now, float(j['uSat']))
 
                         self.sats = j['satellites']
+
+                    elif j['class'] == 'TPV':
+                        if self.hide_position == True:
+                            j['lat'] = 'hidden'
+                            j['lon'] = 'hidden'
+                            j['alt'] = 'hidden'
+                            current = json.dumps(j)
+
+                    self.history[j['class']] = current
+
+                    for q in self.queues:
+                        try:
+                            q.put_nowait(current)
+
+                        except queue.Full:
+                            forget.append(q)
+
+                    # in case a client "forgets" to unregister
+                    for f in forget:
+                        self.queues.remove(f)
 
             except Exception as e:
                 print(f'Exception (gps_api.py): {e}, line number: {e.__traceback__.tb_lineno}')

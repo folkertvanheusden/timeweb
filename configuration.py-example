@@ -19,3 +19,6 @@ max_mru_list_size = 20
 
 listen_interface = '0.0.0.0'
 listen_port = 5000
+
+# hide gps coordinates?
+hide_position = False
