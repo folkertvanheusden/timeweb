@@ -11,11 +11,11 @@ from ntp_api import ntp_api
 
 ##### You may need to change these: #####
 
-ntpsec_host = 'time.lan.nurd.space'
+ntpsec_host = 'localhost'
 # how often to refresh NTP data (seconds)
 ntpsec_interval = 3
 
-gpsd_host = ('time.lan.nurd.space', 2947)
+gpsd_host = ('localhost', 2947)
 
 # time series database. set a filename here to make it persistent.
 database_file = 'timeweb.db'
@@ -149,7 +149,7 @@ eventSourceNTP.onmessage = function(e) {
     // sysvars
 
     let ngtable = '<table>';
-    ngtable += '<caption>general</caption>';
+    ngtable += '<caption>NTP general</caption>';
     ngtable += '<thead><th>name</th><th>value</th><th>description</th></thead>';
     var poll_ts = new Date(obj['poll_ts'] * 1000);
     ngtable += `<tr><th>poll ts</th><td>${poll_ts}</td><td>when were these values retrieved</td></tr>`;
@@ -443,18 +443,16 @@ def slash():
 </section>
 
 <section>
-<h2>NTP general</h2>
 <div id="ntp-general-container">rendering...</div>
-</section>
-
-<section>
-<h2>NTP peers</h2>
-<div id="ntp-peers-container">rendering...</div>
 </section>
 
 <section>
 <h2>Offsets</h2>
 <div id="ntp_offset">rendering...</div>
+</section>
+
+<section>
+<div id="ntp-peers-container">rendering...</div>
 </section>
 
 <footer>
