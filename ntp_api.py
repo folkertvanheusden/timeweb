@@ -110,6 +110,9 @@ class ntp_api(threading.Thread):
 
                 del session
 
+            except ntp.packet.ControlException as nce:
+                print(f'Problem communicating with NTPSEC: {nce}')
+
             except Exception as e:
                 print(f'Exception (ntp_api.py): {e}, line number: {e.__traceback__.tb_lineno}')
                 time.sleep(1)
