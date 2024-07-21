@@ -1,0 +1,16 @@
+#! /usr/bin/python3
+
+ntpsec_host = 'localhost'
+# how often to refresh NTP data (seconds)
+ntpsec_interval = 3
+
+gpsd_host = ('localhost', 2947)
+
+# time series database. set a filename here to make it persistent.
+database_file = 'timeweb.db'
+
+# how often to refresh graphs (seconds)
+graph_refresh_interval = 15
+
+listen_interface = '0.0.0.0'
+listen_port = 5000

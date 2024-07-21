@@ -7,8 +7,8 @@ Required:
 - allantools    (pip)
 
 And it is only useful if you run gpsd and ntpsec.
-In gps-ntp-monitor.py change the lines after 'you may need to change
-these' to suit your environment.
+Adapt configuration.py to your needs (example in
+configuration.py-example).
 Note that some tables/graphs may be empty when you open the website of
 it just after it was started for the first time. That's because it
 needs to collect some initial data first.

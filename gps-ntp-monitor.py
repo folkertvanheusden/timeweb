@@ -9,24 +9,7 @@ import time
 from gps_api import gps_api
 from ntp_api import ntp_api
 
-##### You may need to change these: #####
-
-ntpsec_host = 'localhost'
-# how often to refresh NTP data (seconds)
-ntpsec_interval = 3
-
-gpsd_host = ('localhost', 2947)
-
-# time series database. set a filename here to make it persistent.
-database_file = 'timeweb.db'
-
-# how often to refresh graphs (seconds)
-graph_refresh_interval = 15
-
-listen_interface = '0.0.0.0'
-listen_port = 5000
-
-#########################################
+from configuration import *
 
 n = ntp_api(ntpsec_host, ntpsec_interval, database_file)
 n.start()
