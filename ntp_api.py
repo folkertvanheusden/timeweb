@@ -120,7 +120,7 @@ class ntp_api(threading.Thread):
                             'dropped': entry.dr
                             }
                     entries.append(entry)
-                info['mrulist']['entries'] = sorted(entries, key=lambda d: d['last'])[0:self.max_mru_list_size]
+                info['mrulist']['entries'] = sorted(entries, key=lambda d: d['last'], reverse=True)[0:self.max_mru_list_size]
 
                 self.data = info
 
