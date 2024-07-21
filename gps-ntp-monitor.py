@@ -384,7 +384,6 @@ def slash():
 <main class="columns">
 
 <section>
-<h2>GPSd</h2>
 <div id="devices-container">rendering...</div>
 </section>
 
