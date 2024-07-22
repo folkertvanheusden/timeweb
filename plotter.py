@@ -34,6 +34,8 @@ def plot_timeseries_n(table_name, data, width):
             y = [row['y'] for row in d[0]]
             plt.plot(x, y, label=d[1])
 
+        plt.legend()
+
         buf = io.BytesIO()
         plt.savefig(buf, format='svg')
 
