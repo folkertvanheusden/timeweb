@@ -28,7 +28,6 @@ def plot_timeseries_n(table_name, data, width):
         plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100 * mulx)
         plt.title(table_name)
         plt.xlabel('time')
-        plt.ylabel('value')
 
         for d in data:
             x = [datetime.datetime.fromtimestamp(row['x']) for row in d[0]]
