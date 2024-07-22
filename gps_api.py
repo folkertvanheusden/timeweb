@@ -135,6 +135,10 @@ class gps_api(threading.Thread):
                     for f in forget:
                         self.queues.remove(f)
 
+            except KeyboardInterrupt as ki:
+                print(f'Exception (gps_api.py, ctrl+c): {e}, line number: {e.__traceback__.tb_lineno}')
+                break
+
             except Exception as e:
                 print(f'Exception (gps_api.py): {e}, line number: {e.__traceback__.tb_lineno}')
                 time.sleep(1)
