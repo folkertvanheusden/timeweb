@@ -55,6 +55,40 @@ def plot_timeseries(table_name, data, width):
 
     return rc
 
+def plot_timeseries_n(table_name, data, width):
+    def _plot_timeseries_n(table_name, data, width, q):
+        mulx, muly = calc_plot_dimensions(width)
+
+        plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100 * mulx)
+        plt.title(table_name)
+        plt.xlabel('time')
+        plt.ylabel('value')
+
+        for d in data:
+            x = [datetime.datetime.fromtimestamp(row['x']) for row in d[0]]
+            y = [row['y'] for row in d[0]]
+            plt.plot(x, y, label=d[1])
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='svg')
+
+        plt.close('all')
+
+        buf.seek(0)
+        data = buf.read()
+        buf.close()
+
+        q.put(data)
+
+    q = Queue()
+
+    p = Process(target=_plot_timeseries_n, args=(table_name, data, width, q))
+    p.start()
+    rc = q.get()
+    p.join()
+
+    return rc
+
 def plot_allandeviation(table_name, data, width):
     def _plot_allandeviation(table_name, data, width, q):
         mulx, muly = calc_plot_dimensions(width)

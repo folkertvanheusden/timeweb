@@ -8,7 +8,7 @@ import socket
 import threading
 import time
 from db import time_series_db
-from plotter import plot_timeseries
+from plotter import plot_timeseries, plot_timeseries_n
 
 import ntp.control
 import ntp.magic
@@ -49,6 +49,12 @@ class ntp_api(threading.Thread):
         #
         self.ntp_frequency = time_series_db(database, 'frequency', 86400 * max_data_age)
         self.databases.append(self.ntp_frequency)
+        #
+        self.ntp_sys_jitter = time_series_db(database, 'sys_jitter', 86400 * max_data_age)
+        self.databases.append(self.ntp_sys_jitter)
+        #
+        self.ntp_clk_jitter = time_series_db(database, 'clk_jitter', 86400 * max_data_age)
+        self.databases.append(self.ntp_clk_jitter)
 
     def get_data(self):
         return self.data
@@ -59,6 +65,9 @@ class ntp_api(threading.Thread):
 
         if table == 'ntp_frequency':
             return plot_timeseries('ntp local clock frequency', self.ntp_frequency.get(), width)
+
+        if table == 'ntp_jitter':
+            return plot_timeseries_n('ntp jitter', ((self.ntp_sys_jitter.get(), 'system jitter'), (self.ntp_clk_jitter.get(), 'clock jitter')), width)
 
         return None
 
@@ -88,6 +97,8 @@ class ntp_api(threading.Thread):
 
                 self.ntp_offset.insert(now, sysvars['offset'])
                 self.ntp_frequency.insert(now, sysvars['frequency'])
+                self.ntp_sys_jitter.insert(now, sysvars['sys_jitter'])
+                self.ntp_clk_jitter.insert(now, sysvars['clk_jitter'])
 
                 info['peers'] = dict()
                 peers = session.readstat()
