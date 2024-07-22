@@ -31,13 +31,13 @@ function refresh_x_graph(target, table) {
 
 var interval = ___REPLACE_ME___;
 
-function f_ntp_offset    () { refresh_x_graph('ntp', 'ntp_offset'); }
-function f_ntp_frequency () { refresh_x_graph('ntp', 'ntp_frequency'); }
-function f_ntp_jitter    () { refresh_x_graph('ntp', 'ntp_jitter'); }
-function f_dop           () { refresh_x_graph('gps', 'dop'); }
-function f_pps_clk_offset() { refresh_x_graph('gps', 'pps_clk_offset'); }
-function f_polar         () { refresh_x_graph('gps', 'polar'); }
-function f_used_hist     () { refresh_x_graph('gps', 'used_hist'); }
+async function f_ntp_offset    () { refresh_x_graph('ntp', 'ntp_offset'); }
+async function f_ntp_frequency () { refresh_x_graph('ntp', 'ntp_frequency'); }
+async function f_ntp_jitter    () { refresh_x_graph('ntp', 'ntp_jitter'); }
+async function f_dop           () { refresh_x_graph('gps', 'dop'); }
+async function f_pps_clk_offset() { refresh_x_graph('gps', 'pps_clk_offset'); }
+async function f_polar         () { refresh_x_graph('gps', 'polar'); }
+async function f_used_hist     () { refresh_x_graph('gps', 'used_hist'); }
 
 f_ntp_offset();
 setInterval(f_ntp_offset, interval);
