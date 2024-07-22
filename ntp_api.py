@@ -55,7 +55,10 @@ class ntp_api(threading.Thread):
 
     def get_svg(self, table, width):
         if table == 'ntp_offset':
-            return plot_timeseries('ntp offset', self.ntp_offset.get(), width)
+            return plot_timeseries('ntp local clock offset', self.ntp_offset.get(), width)
+
+        if table == 'ntp_frequency':
+            return plot_timeseries('ntp local clock frequency', self.ntp_frequency.get(), width)
 
         return None
 
