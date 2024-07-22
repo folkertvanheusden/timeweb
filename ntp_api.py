@@ -107,6 +107,7 @@ class ntp_api(threading.Thread):
                     peer_variables['reftime'] = NTP_time_string_to_ctime(peer_variables['reftime'])
                     peer_variables['rec'] = NTP_time_string_to_ctime(peer_variables['rec'])
                     peer_variables['xmt'] = NTP_time_string_to_ctime(peer_variables['xmt'])
+                    peer_variables['reach'] = f"{int(peer_variables['reach']):o} (octal)"
                     info['peers'][peer.associd] = peer_variables
 
                 # replace peer id by host or address
