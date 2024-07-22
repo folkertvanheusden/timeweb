@@ -6,7 +6,7 @@ import socket
 import threading
 import time
 from db import time_series_db
-from plotter import plot_timeseries_n, plot_allandeviation, plot_polar
+from plotter import plot_timeseries_n, plot_allandeviation, plot_polar, plot_histogram
 
 
 class gps_api(threading.Thread):
@@ -50,7 +50,7 @@ class gps_api(threading.Thread):
         if table == 'polar':
             return plot_polar('azimuth/elevation', self.sats, width)
 
-        if table == 'seen_hist':
+        if table == 'used_hist':
             return plot_histogram('GPS used count', self.sat_used.get(), width)
 
         print(f'TABLE {table} not known!')

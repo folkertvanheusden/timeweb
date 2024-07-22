@@ -184,5 +184,5 @@ if __name__ == "__main__":
     g = gps_api(('localhost', 2947), None, 86400, False)
 
     fh = open('test.svg', 'wb')
-    fh.write(plot_histogram('seen_hist', g.sat_used.get(), 640))
+    fh.write(plot_histogram('used_hist', g.sat_used.get(), 640))
     fh.close()
