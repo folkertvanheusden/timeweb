@@ -37,6 +37,7 @@ function f_ntp_jitter    () { refresh_x_graph('ntp', 'ntp_jitter'); }
 function f_dop           () { refresh_x_graph('gps', 'dop'); }
 function f_pps_clk_offset() { refresh_x_graph('gps', 'pps_clk_offset'); }
 function f_polar         () { refresh_x_graph('gps', 'polar'); }
+function f_seen_hist     () { refresh_x_graph('gps', 'seen_hist'); }
 
 f_ntp_offset();
 setInterval(f_ntp_offset, interval);
@@ -55,6 +56,9 @@ setInterval(f_pps_clk_offset, interval);
 
 f_polar();
 setInterval(f_polar, interval);
+
+f_seen_hist();
+setInterval(f_seen_hist, interval);
 
 var eventSourceNTP = new EventSource("/ntp");
 eventSourceNTP.onmessage = function(e) {

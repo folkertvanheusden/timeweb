@@ -58,6 +58,15 @@ class time_series_db:
 
             return rows
 
+    def get_histogram(self):
+        with self.lock:
+            cur = self.db.cursor()
+            cur.execute('SELECT value, (COUNT(*) * 100. / (SELECT COUNT(*) FROM %s)) AS n FROM %s GROUP BY value ORDER BY value ASC' % (self.table_name, self.table_name))
+            rows = [{ 'value': row[0], 'count': row[1] } for row in cur.fetchall() ]
+            cur.close()
+
+            return rows
+
 if __name__ == "__main__":
     db = time_series_db('timeweb.db', 'offset', 86400)
     data = db.get_svg()

@@ -139,3 +139,37 @@ def plot_polar(table_name, satellites, width):
     p.join()
 
     return rc
+
+def plot_histogram(table_name, data, width):
+    def _plot_histogram(table_name, data, width, q):
+        mulx, muly = calc_plot_dimensions(width)
+
+        plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100 * mulx)
+        plt.title(table_name)
+        plt.xlabel('value')
+        plt.ylabel('count %')
+
+        values = [row['y'] for row in data]
+
+        n, bins, patches = plt.hist(values, width / 15)
+        plt.legend()
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='svg')
+
+        plt.close('all')
+
+        buf.seek(0)
+        data = buf.read()
+        buf.close()
+
+        q.put(data)
+
+    q = Queue()
+
+    p = Process(target=_plot_histogram, args=(table_name, data, width, q))
+    p.start()
+    rc = q.get()
+    p.join()
+
+    return rc

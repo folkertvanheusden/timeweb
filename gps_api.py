@@ -50,6 +50,9 @@ class gps_api(threading.Thread):
         if table == 'polar':
             return plot_polar('azimuth/elevation', self.sats, width)
 
+        if table == 'seen_hist':
+            return plot_histogram('GPS used count', self.sat_used.get(), width)
+
         print(f'TABLE {table} not known!')
 
         return None
