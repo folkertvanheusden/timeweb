@@ -32,12 +32,16 @@ function refresh_x_graph(target, table) {
 var interval = ___REPLACE_ME___;
 
 function f_ntp_offset    () { refresh_x_graph('ntp', 'ntp_offset'); }
+function f_ntp_frequency () { refresh_x_graph('ntp', 'ntp_frequency'); }
 function f_dop           () { refresh_x_graph('gps', 'dop'); }
 function f_pps_clk_offset() { refresh_x_graph('gps', 'pps_clk_offset'); }
 function f_polar         () { refresh_x_graph('gps', 'polar'); }
 
 f_ntp_offset();
 setInterval(f_ntp_offset, interval);
+
+f_ntp_frequency();
+setInterval(f_ntp_frequency, interval);
 
 f_dop();
 setInterval(f_dop, interval);

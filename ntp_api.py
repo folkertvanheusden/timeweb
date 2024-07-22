@@ -46,6 +46,9 @@ class ntp_api(threading.Thread):
         #
         self.ntp_offset = time_series_db(database, 'offset', 86400 * max_data_age)
         self.databases.append(self.ntp_offset)
+        #
+        self.ntp_frequency = time_series_db(database, 'frequency', 86400 * max_data_age)
+        self.databases.append(self.ntp_frequency)
 
     def get_data(self):
         return self.data
@@ -81,6 +84,7 @@ class ntp_api(threading.Thread):
                 info['sysvars'] = sysvars
 
                 self.ntp_offset.insert(now, sysvars['offset'])
+                self.ntp_frequency.insert(now, sysvars['frequency'])
 
                 info['peers'] = dict()
                 peers = session.readstat()
