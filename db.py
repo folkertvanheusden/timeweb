@@ -52,7 +52,7 @@ class time_series_db:
     def get(self):
         with self.lock:
             cur = self.db.cursor()
-            cur.execute('SELECT ts, value FROM %s WHERE ts >= ? ORDER BY ts ASC' % self.table_name, (time.time() - self.max_age,))
+            cur.execute('SELECT ts, value FROM %s ORDER BY ts ASC' % self.table_name)
             rows = [{ 'x': row[0], 'y': row[1] } for row in cur.fetchall() ]
             cur.close()
 
