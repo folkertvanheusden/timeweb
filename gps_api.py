@@ -6,7 +6,7 @@ import socket
 import threading
 import time
 from db import time_series_db
-from plotter import plot_dop, plot_allandeviation, plot_polar
+from plotter import plot_timeseries_n, plot_allandeviation, plot_polar
 
 
 class gps_api(threading.Thread):
@@ -45,7 +45,7 @@ class gps_api(threading.Thread):
             return plot_allandeviation('Allan deviation', self.clk_offset.get(), width)
 
         if table == 'dop':
-            return plot_dop('h/p/v dop', self.hdop.get(), self.pdop.get(), self.vdop.get(), width)
+            return plot_timeseries_n('dilution of precision', ((self.hdop.get(), 'hdop'), (self.pdop.get(), 'pdop'), (self.vdop.get(), 'vdop')), width)
 
         if table == 'polar':
             return plot_polar('azimuth/elevation', self.sats, width)

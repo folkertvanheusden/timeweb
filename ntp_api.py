@@ -8,7 +8,7 @@ import socket
 import threading
 import time
 from db import time_series_db
-from plotter import plot_timeseries, plot_timeseries_n
+from plotter import plot_timeseries_n
 
 import ntp.control
 import ntp.magic
@@ -61,10 +61,10 @@ class ntp_api(threading.Thread):
 
     def get_svg(self, table, width):
         if table == 'ntp_offset':
-            return plot_timeseries('ntp local clock offset', self.ntp_offset.get(), width)
+            return plot_timeseries_n('ntp local clock offset', ((self.ntp_offset.get(), 'clock offset'),), width)
 
         if table == 'ntp_frequency':
-            return plot_timeseries('ntp local clock frequency', self.ntp_frequency.get(), width)
+            return plot_timeseries_n('ntp local clock frequency', ((self.ntp_frequency.get(), 'frequency'),), width)
 
         if table == 'ntp_jitter':
             return plot_timeseries_n('ntp jitter', ((self.ntp_sys_jitter.get(), 'system jitter'), (self.ntp_clk_jitter.get(), 'clock jitter')), width)
