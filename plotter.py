@@ -142,28 +142,33 @@ def plot_polar(table_name, satellites, width):
 
 def plot_histogram(table_name, data, width):
     def _plot_histogram(table_name, data, width, q):
-        mulx, muly = calc_plot_dimensions(width)
+        try:
+            mulx, muly = calc_plot_dimensions(width)
 
-        plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100 * mulx)
-        plt.title(table_name)
-        plt.xlabel('value')
-        plt.ylabel('count %')
+            plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100 * mulx)
+            plt.title(table_name)
+            plt.xlabel('value')
+            plt.ylabel('count %')
 
-        values = [row['y'] for row in data]
+            values = [row['y'] for row in data]
 
-        n, bins, patches = plt.hist(values, width / 15)
-        plt.legend()
+            n, bins, patches = plt.hist(values, width // 15)
+            plt.legend()
 
-        buf = io.BytesIO()
-        plt.savefig(buf, format='svg')
+            buf = io.BytesIO()
+            plt.savefig(buf, format='svg')
 
-        plt.close('all')
+            plt.close('all')
 
-        buf.seek(0)
-        data = buf.read()
-        buf.close()
+            buf.seek(0)
+            data = buf.read()
+            buf.close()
 
-        q.put(data)
+            q.put(data)
+
+        except Exception as e:
+            print(f'Exception (plotter.py, plot_histogram): {e}, line number: {e.__traceback__.tb_lineno}')
+            q.put(None)
 
     q = Queue()
 
@@ -173,3 +178,11 @@ def plot_histogram(table_name, data, width):
     p.join()
 
     return rc
+
+if __name__ == "__main__":
+    from gps_api import gps_api
+    g = gps_api(('localhost', 2947), None, 86400, False)
+
+    fh = open('test.svg', 'wb')
+    fh.write(plot_histogram('seen_hist', g.sat_used.get(), 640))
+    fh.close()
