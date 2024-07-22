@@ -140,19 +140,19 @@ def plot_polar(table_name, satellites, width):
 
     return rc
 
-def plot_histogram(table_name, x_label, data, width):
-    def _plot_histogram(table_name, x_label, data, width, q):
+def plot_histogram(table_name, data, width):
+    def _plot_histogram(table_name, data, width, q):
         try:
             mulx, muly = calc_plot_dimensions(width)
 
             plt.figure(figsize=(6.4 * mulx, 4.8 * muly), dpi=100 * mulx)
             plt.title(table_name)
-            plt.xlabel(x_label)
             plt.ylabel('count')
 
-            values = [row['y'] for row in data]
+            for d in data:
+                values = [row['y'] for row in d[1]]
+                n, bins, patches = plt.hist(values, int(width / 15), label=d[0])
 
-            n, bins, patches = plt.hist(values, int(width / 15))
             plt.legend()
 
             buf = io.BytesIO()
@@ -172,7 +172,7 @@ def plot_histogram(table_name, x_label, data, width):
 
     q = Queue()
 
-    p = Process(target=_plot_histogram, args=(table_name, x_label, data, width, q))
+    p = Process(target=_plot_histogram, args=(table_name, data, width, q))
     p.start()
     rc = q.get()
     p.join()
