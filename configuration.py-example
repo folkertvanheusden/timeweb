@@ -22,3 +22,6 @@ listen_port = 5000
 
 # hide gps coordinates?
 hide_position = False
+
+# uses quite a bit of memory so it can be disabled
+use_cache = True

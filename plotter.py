@@ -18,6 +18,13 @@ cache_lock = threading.Lock()
 
 matplotlib.use('agg')
 
+use_cache = None
+
+# TODO move it into a class
+def set_cache(use_cache_in):
+    global use_cache
+    use_cache = use_cache_in
+
 def get_cache(table_name, max_age):
     o = None
     cache_lock.acquire()
@@ -34,9 +41,10 @@ def get_cache(table_name, max_age):
     return o
 
 def put_cache(table_name, obj):
-    cache_lock.acquire()
-    cache[table_name] = { 'ts': time.time(), 'obj' : obj }
-    cache_lock.release()
+    if use_cache:
+        cache_lock.acquire()
+        cache[table_name] = { 'ts': time.time(), 'obj' : obj }
+        cache_lock.release()
 
 def calc_plot_dimensions(width):
     mulx = float(width) / 640.
