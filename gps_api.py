@@ -20,6 +20,9 @@ class gps_api(threading.Thread):
 
         self.hide_position = hide_position
 
+        # GPS update interval
+        self.update_graph_interval = 1
+
         self.databases = []
         #
         self.clk_offset = time_series_db(database, 'pps_clk_offset', 100000 * max_data_age)
@@ -42,16 +45,16 @@ class gps_api(threading.Thread):
 
     def get_svg(self, table, width):
         if table == 'pps_clk_offset':
-            return plot_allandeviation('Allan deviation', self.clk_offset.get(), width)
+            return plot_allandeviation('Allan deviation', self.clk_offset.get(), width, self.update_graph_interval)
 
         if table == 'dop':
-            return plot_timeseries_n('dilution of precision', ((self.hdop.get(), 'hdop'), (self.pdop.get(), 'pdop'), (self.vdop.get(), 'vdop')), width)
+            return plot_timeseries_n('dilution of precision', ((self.hdop.get(), 'hdop'), (self.pdop.get(), 'pdop'), (self.vdop.get(), 'vdop')), width, self.update_graph_interval)
 
         if table == 'polar':
-            return plot_polar('azimuth/elevation', self.sats, width)
+            return plot_polar('azimuth/elevation', self.sats, width, self.update_graph_interval)
 
         if table == 'used_hist':
-            return plot_histogram('GPS seen/used count', (('GPSes used', self.sat_used.get()), ('GPSes seen', self.sat_seen.get())), width)
+            return plot_histogram('GPS seen/used count', (('GPSes used', self.sat_used.get()), ('GPSes seen', self.sat_seen.get())), width, self.update_graph_interval)
 
         print(f'TABLE {table} not known!')
 
