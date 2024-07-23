@@ -2,9 +2,10 @@ timeweb is a web-interface showing the status of a GPSD/NTPSEC combo.
 
 
 Required:
-- python3-flask (apt)
-- python3-ntp   (apt)
-- allantools    (pip)
+- python3-flask  (apt)
+- python3-ntp    (apt)
+- python3-gevent (apt)
+- allantools     (pip)
 
 And it is only useful if you run gpsd and ntpsec.
 Adapt configuration.py to your needs (example in

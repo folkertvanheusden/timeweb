@@ -3,11 +3,15 @@
 # pip install flask-sse
 
 from flask import Flask, Response, request
+from gevent.pywsgi import WSGIServer
+from gevent import monkey
 import json
 import socket
 import time
 from gps_api import gps_api
 from ntp_api import ntp_api
+
+monkey.patch_all()
 
 from configuration import *
 
@@ -101,4 +105,5 @@ def slash():
     return Response(load_file('index.html'), mimetype="text/html")
 
 if __name__ == "__main__":
-    app.run(host=listen_interface, port=listen_port, debug=True, threaded=True)
+    http = WSGIServer((listen_interface, listen_port), app.wsgi_app)
+    http.serve_forever()
