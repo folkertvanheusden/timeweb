@@ -84,9 +84,7 @@ class ntp_api(threading.Thread):
                     time.sleep(0.5)
                     continue
 
-                last_poll = now;
                 info = dict()
-
                 info['poll_ts'] = now
 
                 session = ntp.packet.ControlSession()
@@ -156,16 +154,19 @@ class ntp_api(threading.Thread):
 
                 del session
 
+                last_poll = now;
+
             except KeyboardInterrupt as ki:
                 print(f'Exception (ntp_api.py, ctrl+c): {e}, line number: {e.__traceback__.tb_lineno}')
                 break
 
             except ntp.packet.ControlException as nce:
                 print(f'Problem communicating with NTPSEC: {nce}')
+                time.sleep(0.5)
 
             except Exception as e:
                 print(f'Exception (ntp_api.py): {e}, line number: {e.__traceback__.tb_lineno}')
-                time.sleep(1)
+                time.sleep(1.0)
 
 if __name__ == "__main__":
     n = ntp_api('localhost', 3, 20)
