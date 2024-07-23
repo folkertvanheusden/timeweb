@@ -9,8 +9,34 @@ import matplotlib.pyplot as plt
 # matplotlib is not thread safe
 from multiprocessing import Process, Queue
 import numpy as np
+import threading
+import time
+
+
+cache = dict()
+cache_lock = threading.Lock()
 
 matplotlib.use('agg')
+
+def get_cache(table_name, max_age):
+    o = None
+    cache_lock.acquire()
+
+    if table_name in cache:
+        now = time.time()
+        if now - cache[table_name]['ts'] <= max_age:
+            print(f'{table_name} from cache')
+            o = cache[table_name]['obj']
+
+    cache_lock.release()
+    if o == None:
+            print(f'regenerate {table_name}')
+    return o
+
+def put_cache(table_name, obj):
+    cache_lock.acquire()
+    cache[table_name] = { 'ts': time.time(), 'obj' : obj }
+    cache_lock.release()
 
 def calc_plot_dimensions(width):
     mulx = float(width) / 640.
@@ -21,7 +47,7 @@ def calc_plot_dimensions(width):
 
     return mulx, muly
 
-def plot_timeseries_n(table_name, data, width):
+def plot_timeseries_n(table_name, data, width, max_age):
     def _plot_timeseries_n(table_name, data, width, q):
         mulx, muly = calc_plot_dimensions(width)
 
@@ -47,6 +73,10 @@ def plot_timeseries_n(table_name, data, width):
 
         q.put(data)
 
+    o = get_cache(table_name, max_age)
+    if o != None:
+        return o
+
     q = Queue()
 
     p = Process(target=_plot_timeseries_n, args=(table_name, data, width, q))
@@ -54,9 +84,11 @@ def plot_timeseries_n(table_name, data, width):
     rc = q.get()
     p.join()
 
+    put_cache(table_name, rc)
+
     return rc
 
-def plot_allandeviation(table_name, data, width):
+def plot_allandeviation(table_name, data, width, max_age):
     def _plot_allandeviation(table_name, data, width, q):
         mulx, muly = calc_plot_dimensions(width)
 
@@ -91,6 +123,10 @@ def plot_allandeviation(table_name, data, width):
         b.plt.close('all')
         del b
 
+    o = get_cache(table_name, max_age)
+    if o != None:
+        return o
+
     q = Queue()
 
     p = Process(target=_plot_allandeviation, args=(table_name, data, width, q))
@@ -98,9 +134,11 @@ def plot_allandeviation(table_name, data, width):
     rc = q.get()
     p.join()
 
+    put_cache(table_name, rc)
+
     return rc
 
-def plot_polar(table_name, satellites, width):
+def plot_polar(table_name, satellites, width, max_age):
     def _plot_polar(table_name, satellites, width, q):
         mulx, muly = calc_plot_dimensions(width)
 
@@ -131,6 +169,10 @@ def plot_polar(table_name, satellites, width):
         q.put(buf.read())
         buf.close()
 
+    o = get_cache(table_name, max_age)
+    if o != None:
+        return o
+
     q = Queue()
 
     p = Process(target=_plot_polar, args=(table_name, satellites, width, q))
@@ -138,9 +180,11 @@ def plot_polar(table_name, satellites, width):
     rc = q.get()
     p.join()
 
+    put_cache(table_name, rc)
+
     return rc
 
-def plot_histogram(table_name, data, width):
+def plot_histogram(table_name, data, width, max_age):
     def _plot_histogram(table_name, data, width, q):
         try:
             mulx, muly = calc_plot_dimensions(width)
@@ -170,12 +214,18 @@ def plot_histogram(table_name, data, width):
             print(f'Exception (plotter.py, plot_histogram): {e}, line number: {e.__traceback__.tb_lineno}')
             q.put(None)
 
+    o = get_cache(table_name, max_age)
+    if o != None:
+        return o
+
     q = Queue()
 
     p = Process(target=_plot_histogram, args=(table_name, data, width, q))
     p.start()
     rc = q.get()
     p.join()
+
+    put_cache(table_name, rc)
 
     return rc
 
@@ -184,5 +234,5 @@ if __name__ == "__main__":
     g = gps_api(('localhost', 2947), None, 86400, False)
 
     fh = open('test.svg', 'wb')
-    fh.write(plot_histogram('used_hist', g.sat_used.get(), 640))
+    fh.write(plot_histogram('used_hist', g.sat_used.get(), 640, 0))
     fh.close()
