@@ -5,6 +5,7 @@ import datetime
 import io
 import math
 import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 # matplotlib is not thread safe
 from multiprocessing import Process, Queue
@@ -15,8 +16,6 @@ import time
 
 cache = dict()
 cache_lock = threading.Lock()
-
-matplotlib.use('agg')
 
 use_cache = None
 
