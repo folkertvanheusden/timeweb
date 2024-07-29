@@ -61,13 +61,13 @@ class ntp_api(threading.Thread):
 
     def get_svg(self, table, width):
         if table == 'ntp_offset':
-            return plot_timeseries_n('ntp local clock offset', ((self.ntp_offset.get_grouped(width), 'clock offset (μs)'),), width)
+            return plot_timeseries_n('ntp local clock offset', ((self.ntp_offset.get_grouped(width), 'clock offset (μs)'),), width, self.poll_interval)
 
         if table == 'ntp_frequency':
-            return plot_timeseries_n('ntp local clock frequency', ((self.ntp_frequency.get_grouped(width), 'frequency (ppm)'),), width)
+            return plot_timeseries_n('ntp local clock frequency', ((self.ntp_frequency.get_grouped(width), 'frequency (ppm)'),), width, self.poll_interval)
 
         if table == 'ntp_jitter':
-            return plot_timeseries_n('ntp jitter', ((self.ntp_sys_jitter.get_grouped(width), 'system jitter (ppb)'), (self.ntp_clk_jitter.get_grouped(width), 'clock jitter (ppb)')), width)
+            return plot_timeseries_n('ntp jitter', ((self.ntp_sys_jitter.get_grouped(width), 'system jitter (ppb)'), (self.ntp_clk_jitter.get_grouped(width), 'clock jitter (ppb)')), width, self.poll_interval)
 
         return None
 
@@ -84,9 +84,7 @@ class ntp_api(threading.Thread):
                     time.sleep(0.5)
                     continue
 
-                last_poll = now;
                 info = dict()
-
                 info['poll_ts'] = now
 
                 session = ntp.packet.ControlSession()
@@ -156,16 +154,19 @@ class ntp_api(threading.Thread):
 
                 del session
 
+                last_poll = now;
+
             except KeyboardInterrupt as ki:
                 print(f'Exception (ntp_api.py, ctrl+c): {e}, line number: {e.__traceback__.tb_lineno}')
                 break
 
             except ntp.packet.ControlException as nce:
                 print(f'Problem communicating with NTPSEC: {nce}')
+                time.sleep(0.5)
 
             except Exception as e:
                 print(f'Exception (ntp_api.py): {e}, line number: {e.__traceback__.tb_lineno}')
-                time.sleep(1)
+                time.sleep(1.0)
 
 if __name__ == "__main__":
     n = ntp_api('localhost', 3, 20)
