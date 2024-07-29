@@ -58,6 +58,17 @@ class time_series_db:
 
             return rows
 
+    def get_grouped(self, group_to_count):
+        with self.lock:
+            cur = self.db.cursor()
+            cur.execute('SELECT COUNT(*) AS n FROM %s' % self.table_name)
+            n = cur.fetchone()[0]
+            cur.execute('SELECT AVG(ts) AS ts, AVG(value) AS value FROM %s GROUP BY FLOOR(ts / %s) ORDER BY ts ASC' % (self.table_name, max(1, n / group_to_count)))
+            rows = [{ 'x': row[0], 'y': row[1] } for row in cur.fetchall() ]
+            cur.close()
+
+            return rows
+
     def get_histogram(self):
         with self.lock:
             cur = self.db.cursor()

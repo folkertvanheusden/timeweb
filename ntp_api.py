@@ -61,13 +61,13 @@ class ntp_api(threading.Thread):
 
     def get_svg(self, table, width):
         if table == 'ntp_offset':
-            return plot_timeseries_n('ntp local clock offset', ((self.ntp_offset.get(), 'clock offset (μs)'),), width)
+            return plot_timeseries_n('ntp local clock offset', ((self.ntp_offset.get_grouped(width), 'clock offset (μs)'),), width)
 
         if table == 'ntp_frequency':
-            return plot_timeseries_n('ntp local clock frequency', ((self.ntp_frequency.get(), 'frequency (ppm)'),), width)
+            return plot_timeseries_n('ntp local clock frequency', ((self.ntp_frequency.get_grouped(width), 'frequency (ppm)'),), width)
 
         if table == 'ntp_jitter':
-            return plot_timeseries_n('ntp jitter', ((self.ntp_sys_jitter.get(), 'system jitter (ppb)'), (self.ntp_clk_jitter.get(), 'clock jitter (ppb)')), width)
+            return plot_timeseries_n('ntp jitter', ((self.ntp_sys_jitter.get_grouped(width), 'system jitter (ppb)'), (self.ntp_clk_jitter.get_grouped(width), 'clock jitter (ppb)')), width)
 
         return None
 
