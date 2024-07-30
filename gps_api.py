@@ -43,6 +43,15 @@ class gps_api(threading.Thread):
         # satellites
         self.sats = []
 
+        threading.Thread(target=self._db_cleaner, args=(self.databases,)).start()
+
+    def _db_cleaner(self, db_list):
+        while True:
+            for d in self.databases:
+                d.clean()
+
+            time.sleep(300)
+
     def get_svg(self, table, width):
         if table == 'pps_clk_offset':
             return plot_allandeviation('Allan deviation', self.clk_offset.get(), width, self.update_graph_interval)
