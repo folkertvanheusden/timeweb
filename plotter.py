@@ -200,9 +200,13 @@ def plot_histogram(table_name, data, width, max_age):
             plt.title(table_name)
             plt.ylabel('count')
 
+            print(f'plot_histogram {len(data)} plots')
+
             for d in data:
-                values = [row['y'] for row in d[1]]
-                n, bins, patches = plt.hist(values, int(width / 15), label=d[0])
+                print(f'{len(d[1])} rows in sub-plot {d[0]}')
+                x = [row['value'] for row in d[1]]
+                y = [row['count'] for row in d[1]]
+                plt.bar(x, y, label=d[0])
 
             plt.legend()
 
