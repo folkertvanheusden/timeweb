@@ -48,7 +48,7 @@ class gps_api(threading.Thread):
             return plot_allandeviation('Allan deviation', self.clk_offset.get(), width, self.update_graph_interval)
 
         if table == 'dop':
-            return plot_timeseries_n('dilution of precision', ((self.hdop.get(), 'hdop'), (self.pdop.get(), 'pdop'), (self.vdop.get(), 'vdop')), width, self.update_graph_interval)
+            return plot_timeseries_n('dilution of precision', ((self.hdop.get_grouped(width), 'hdop'), (self.pdop.get_grouped(width), 'pdop'), (self.vdop.get_grouped(width), 'vdop')), width, self.update_graph_interval)
 
         if table == 'polar':
             return plot_polar('azimuth/elevation', self.sats, width, self.update_graph_interval)
