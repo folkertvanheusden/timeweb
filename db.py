@@ -40,6 +40,8 @@ class time_series_db:
             self.db.commit()
 
     def clean(self):
+        print(f'Cleaning {self.table_name} in {self.database_file if self.database_file != None else "(memory)"}')
+
         with self.lock:
             cur = self.db.cursor()
             try:
