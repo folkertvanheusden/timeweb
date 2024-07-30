@@ -17,12 +17,13 @@ function refresh_x_graph(target, table) {
 
     var url = '/graph-data-' + target + '?table=' + table + "&width=" + width;
     console.log('refreshing ' + url)
+    var start = Date.now();
 
     var xhr = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
     xhr.open('get', url, true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
-	    console.log(url + ' refreshed')
+	    console.log(url + ' refreshed in ' + (Date.now() - start) / 1000 + ' seconds');
             element.innerHTML = xhr.responseText;
         }
     }
