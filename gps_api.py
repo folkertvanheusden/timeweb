@@ -82,6 +82,8 @@ class gps_api(threading.Thread):
         del self.queues[q]
 
     def run(self):
+        print('GPS processing thread starting')
+
         while True:
             s = None
 
