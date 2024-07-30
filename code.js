@@ -52,8 +52,8 @@ setInterval(f_ntp_jitter, interval);
 f_dop();
 setInterval(f_dop, interval);
 
-f_pps_clk_offset();
-setInterval(f_pps_clk_offset, interval);
+/*f_pps_clk_offset();
+setInterval(f_pps_clk_offset, interval);*/
 
 f_polar();
 setInterval(f_polar, interval);
