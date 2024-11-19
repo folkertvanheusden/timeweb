@@ -79,10 +79,19 @@ class ntp_api(threading.Thread):
 
         print('NTP poller thread starting')
 
+        databases = []
+        #
         local_ntp_offset = time_series_db(self.database, 'offset', 86400 * self.max_data_age)
+        databases.append(local_ntp_offset)
+        #
         local_ntp_frequency = time_series_db(self.database, 'frequency', 86400 * self.max_data_age)
+        databases.append(local_ntp_frequency)
+        #
         local_ntp_sys_jitter = time_series_db(self.database, 'sys_jitter', 86400 * self.max_data_age)
+        databases.append(local_ntp_sys_jitter)
+        #
         local_ntp_clk_jitter = time_series_db(self.database, 'clk_jitter', 86400 * self.max_data_age)
+        databases.append(local_ntp_clk_jitter)
 
         last_poll = 0
         last_clean = 0
@@ -162,10 +171,10 @@ class ntp_api(threading.Thread):
                     if now - last_clean >= self.max_data_age / 2:
                         last_clean = now
 
-                        for d in self.databases:
+                        for d in databases:
                             d.clean()
 
-                    last_poll = time.time();
+                    last_poll = now
 
             except KeyboardInterrupt as ki:
                 print(f'Exception (ntp_api.py, ctrl+c): {e}, line number: {e.__traceback__.tb_lineno}')

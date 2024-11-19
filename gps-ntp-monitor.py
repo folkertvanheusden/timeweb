@@ -15,11 +15,11 @@ from configuration import *
 
 set_cache(use_cache)
 
-n = ntp_api(ntpsec_host, ntpsec_interval, database_file, max_data_age, max_mru_list_size)
+n = ntp_api(ntpsec_host, ntpsec_interval, database_file, max_data_age * 86400, max_mru_list_size)
 n.daemon = True
 n.start()
 
-g = gps_api(gpsd_host, database_file, max_data_age, hide_position)
+g = gps_api(gpsd_host, database_file, max_data_age * 86400, hide_position)
 g.daemon = True
 g.start()
 

@@ -25,29 +25,21 @@ class gps_api(threading.Thread):
         # GPS update interval
         self.update_graph_interval = 1
 
-        self.databases = []
-        #
         self.clk_offset = time_series_db(self.database, 'pps_clk_offset', 100000 * max_data_age)
-        self.databases.append(self.clk_offset)
         #
         self.hdop = time_series_db(self.database, 'gps_hdop', 86400 * max_data_age)
-        self.databases.append(self.hdop)
         self.pdop = time_series_db(self.database, 'gps_pdop', 86400 * max_data_age)
-        self.databases.append(self.pdop)
         self.vdop = time_series_db(self.database, 'gps_vdop', 86400 * max_data_age)
-        self.databases.append(self.vdop)
         #
         self.sat_seen = time_series_db(self.database, 'sat_seen', 86400 * max_data_age)
-        self.databases.append(self.sat_seen)
         self.sat_used = time_series_db(self.database, 'sat_used', 86400 * max_data_age)
-        self.databases.append(self.sat_used)
 
         # satellites
         self.sats = []
 
     def _db_cleaner(self, db_list):
         while True:
-            for d in self.databases:
+            for d in db_list:
                 d.clean()
 
             time.sleep(300)
