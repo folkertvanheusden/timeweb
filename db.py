@@ -56,28 +56,34 @@ class time_series_db:
         self.db.finish()
 
     def get(self):
-        cur = self.db.cursor()
+        db = sqlite3.connect(self.db.database_file)
+        cur = db.cursor()
         cur.execute('SELECT ts, value FROM %s ORDER BY ts ASC' % self.table_name)
         rows = [{ 'x': row[0], 'y': row[1] } for row in cur.fetchall() ]
         cur.close()
+        db.close()
 
         return rows
 
     def get_grouped(self, group_to_count):
-        cur = self.db.cursor()
+        db = sqlite3.connect(self.db.database_file)
+        cur = db.cursor()
         cur.execute('SELECT COUNT(*) AS n FROM %s' % self.table_name)
         n = cur.fetchone()[0]
         cur.execute('SELECT AVG(ts) AS ts, AVG(value) AS value FROM %s GROUP BY FLOOR(ts / %s) ORDER BY ts ASC' % (self.table_name, max(1, n / group_to_count)))
         rows = [{ 'x': row[0], 'y': row[1] } for row in cur.fetchall() ]
         cur.close()
+        db.close()
 
         return rows
 
     def get_histogram(self):
-        cur = self.db.cursor()
+        db = sqlite3.connect(self.db.database_file)
+        cur = db.cursor()
         cur.execute('SELECT value, (COUNT(*) * 100. / (SELECT COUNT(*) FROM %s)) AS n FROM %s GROUP BY value ORDER BY value ASC' % (self.table_name, self.table_name))
         rows = [{ 'value': row[0], 'count': row[1] } for row in cur.fetchall() ]
         cur.close()
+        db.close()
 
         return rows
 
