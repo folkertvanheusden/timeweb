@@ -15,7 +15,7 @@ function refresh_x_graph(target, table) {
     var positionInfo = element.getBoundingClientRect();
     var width = positionInfo.width;
 
-    var url = '/graph-data-' + target + '?table=' + table + "&width=" + width;
+    var url = 'graph-data-' + target + '?table=' + table + "&width=" + width;
     console.log('refreshing ' + url)
     var start = Date.now();
 
