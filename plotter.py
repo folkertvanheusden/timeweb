@@ -161,11 +161,12 @@ def plot_polar(table_name, satellites, width, max_age):
         ax.set_xticklabels(xLabel)
 
         for sat in satellites:
-            ax.annotate(str(sat['PRN']),
-                    xy=(sat['az']*np.pi/180, 90-sat['el']),  # theta, radius
-                    bbox=dict(boxstyle="round", fc = matplotlib.colors.hsv_to_rgb((sat['ss']/50, 1.0, 0.5)), alpha = 0.5),
-                    horizontalalignment='center',
-                    verticalalignment='bottom')
+            if 'el' in sat and 'az' in sat and 'ss' in sat:
+                ax.annotate(str(sat['PRN']),
+                        xy=(sat['az']*np.pi/180, 90-sat['el']),  # theta, radius
+                        bbox=dict(boxstyle="round", fc = matplotlib.colors.hsv_to_rgb((sat['ss']/50, 1.0, 0.5)), alpha = 0.5),
+                        horizontalalignment='center',
+                        verticalalignment='bottom')
 
         buf = io.BytesIO()
         plt.savefig(buf, format='svg')
