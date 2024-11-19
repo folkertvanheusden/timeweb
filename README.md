@@ -17,7 +17,7 @@ If you monitor a remote ntpsec/gpsd, do not forget to allow remote
 connections/monitoring in their configurations.
 
 
-Demo: http://gateway.vanheusden.com:5000/
+Demo: https://gateway.vanheusden.com/timeweb/
 
 
 
