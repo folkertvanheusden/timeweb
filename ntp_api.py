@@ -9,7 +9,7 @@ import socket
 import sys
 import threading
 import time
-from db import time_series_db
+from db import db_, time_series_db
 from plotter import plot_timeseries_n
 
 import ntp.control
@@ -45,18 +45,19 @@ class ntp_api(threading.Thread):
         # empty initially
         self.data = dict()
 
+        db = db_(self.database)
         self.databases = []
         #
-        self.ntp_offset = time_series_db(database, 'offset', 86400 * max_data_age)
+        self.ntp_offset = time_series_db(db, 'offset', 86400 * max_data_age)
         self.databases.append(self.ntp_offset)
         #
-        self.ntp_frequency = time_series_db(database, 'frequency', 86400 * max_data_age)
+        self.ntp_frequency = time_series_db(db, 'frequency', 86400 * max_data_age)
         self.databases.append(self.ntp_frequency)
         #
-        self.ntp_sys_jitter = time_series_db(database, 'sys_jitter', 86400 * max_data_age)
+        self.ntp_sys_jitter = time_series_db(db, 'sys_jitter', 86400 * max_data_age)
         self.databases.append(self.ntp_sys_jitter)
         #
-        self.ntp_clk_jitter = time_series_db(database, 'clk_jitter', 86400 * max_data_age)
+        self.ntp_clk_jitter = time_series_db(db, 'clk_jitter', 86400 * max_data_age)
         self.databases.append(self.ntp_clk_jitter)
 
     def get_data(self):
@@ -80,17 +81,19 @@ class ntp_api(threading.Thread):
         print('NTP poller thread starting')
 
         databases = []
+
+        db = db_(self.database)
         #
-        local_ntp_offset = time_series_db(self.database, 'offset', 86400 * self.max_data_age)
+        local_ntp_offset = time_series_db(db, 'offset', 86400 * self.max_data_age)
         databases.append(local_ntp_offset)
         #
-        local_ntp_frequency = time_series_db(self.database, 'frequency', 86400 * self.max_data_age)
+        local_ntp_frequency = time_series_db(db, 'frequency', 86400 * self.max_data_age)
         databases.append(local_ntp_frequency)
         #
-        local_ntp_sys_jitter = time_series_db(self.database, 'sys_jitter', 86400 * self.max_data_age)
+        local_ntp_sys_jitter = time_series_db(db, 'sys_jitter', 86400 * self.max_data_age)
         databases.append(local_ntp_sys_jitter)
         #
-        local_ntp_clk_jitter = time_series_db(self.database, 'clk_jitter', 86400 * self.max_data_age)
+        local_ntp_clk_jitter = time_series_db(db, 'clk_jitter', 86400 * self.max_data_age)
         databases.append(local_ntp_clk_jitter)
 
         last_poll = 0
@@ -115,10 +118,12 @@ class ntp_api(threading.Thread):
                     sysvars = session.readvar()
                     info['sysvars'] = sysvars
 
+                    db.start()
                     local_ntp_offset.insert(now, sysvars['offset'])
                     local_ntp_frequency.insert(now, sysvars['frequency'])
                     local_ntp_sys_jitter.insert(now, sysvars['sys_jitter'])
                     local_ntp_clk_jitter.insert(now, sysvars['clk_jitter'])
+                    db.finish()
 
                     info['peers'] = dict()
                     peers = session.readstat()

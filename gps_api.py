@@ -6,7 +6,7 @@ import queue
 import socket
 import threading
 import time
-from db import time_series_db
+from db import db_, time_series_db
 from plotter import plot_timeseries_n, plot_allandeviation, plot_polar, plot_histogram
 
 
@@ -25,14 +25,15 @@ class gps_api(threading.Thread):
         # GPS update interval
         self.update_graph_interval = 1
 
-        self.clk_offset = time_series_db(self.database, 'pps_clk_offset', 100000 * max_data_age)
+        db = db_(self.database)
+        self.clk_offset = time_series_db(db, 'pps_clk_offset', 100000 * max_data_age)
         #
-        self.hdop = time_series_db(self.database, 'gps_hdop', 86400 * max_data_age)
-        self.pdop = time_series_db(self.database, 'gps_pdop', 86400 * max_data_age)
-        self.vdop = time_series_db(self.database, 'gps_vdop', 86400 * max_data_age)
+        self.hdop = time_series_db(db, 'gps_hdop', 86400 * max_data_age)
+        self.pdop = time_series_db(db, 'gps_pdop', 86400 * max_data_age)
+        self.vdop = time_series_db(db, 'gps_vdop', 86400 * max_data_age)
         #
-        self.sat_seen = time_series_db(self.database, 'sat_seen', 86400 * max_data_age)
-        self.sat_used = time_series_db(self.database, 'sat_used', 86400 * max_data_age)
+        self.sat_seen = time_series_db(db, 'sat_seen', 86400 * max_data_age)
+        self.sat_used = time_series_db(db, 'sat_used', 86400 * max_data_age)
 
         # satellites
         self.sats = []
@@ -79,20 +80,21 @@ class gps_api(threading.Thread):
         print('GPS processing thread starting')
 
         databases = []
+        db = db_(self.database)
         #
-        local_clk_offset = time_series_db(self.database, 'pps_clk_offset', 100000 * self.max_data_age)
+        local_clk_offset = time_series_db(db, 'pps_clk_offset', 100000 * self.max_data_age)
         databases.append(local_clk_offset)
         #
-        local_hdop = time_series_db(self.database, 'gps_hdop', 86400 * self.max_data_age)
+        local_hdop = time_series_db(db, 'gps_hdop', 86400 * self.max_data_age)
         databases.append(local_hdop)
-        local_pdop = time_series_db(self.database, 'gps_pdop', 86400 * self.max_data_age)
+        local_pdop = time_series_db(db, 'gps_pdop', 86400 * self.max_data_age)
         databases.append(local_pdop)
-        local_vdop = time_series_db(self.database, 'gps_vdop', 86400 * self.max_data_age)
+        local_vdop = time_series_db(db, 'gps_vdop', 86400 * self.max_data_age)
         databases.append(local_vdop)
         #
-        local_sat_seen = time_series_db(self.database, 'sat_seen', 86400 * self.max_data_age)
+        local_sat_seen = time_series_db(db, 'sat_seen', 86400 * self.max_data_age)
         databases.append(local_sat_seen)
-        local_sat_used = time_series_db(self.database, 'sat_used', 86400 * self.max_data_age)
+        local_sat_used = time_series_db(db, 'sat_used', 86400 * self.max_data_age)
         databases.append(local_sat_used)
 
         while True:
@@ -120,6 +122,8 @@ class gps_api(threading.Thread):
                     buffer = buffer[lf + 1:]
 
                     forget = []
+
+                    db.start()
 
                     j = json.loads(current)
 
@@ -153,6 +157,8 @@ class gps_api(threading.Thread):
                             current = json.dumps(j)
 
                     self.history[j['class']] = current
+
+                    db.finish()
 
                     for q in self.queues:
                         try:
