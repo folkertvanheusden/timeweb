@@ -4,6 +4,7 @@
 
 import datetime
 import json
+import prctl
 import socket
 import threading
 import time
@@ -72,6 +73,8 @@ class ntp_api(threading.Thread):
         return None
 
     def run(self):
+        prctl.set_name('ntp_api')
+
         print('NTP poller thread starting')
 
         last_poll = 0
@@ -79,82 +82,82 @@ class ntp_api(threading.Thread):
 
         while True:
             try:
-                now = time.time()
-                if now - last_poll < self.poll_interval:
-                    time.sleep(0.5)
-                    continue
-
-                info = dict()
-                info['poll_ts'] = now
-
                 session = ntp.packet.ControlSession()
                 session.openhost(self.host)
 
-                sysvars = session.readvar()
-                info['sysvars'] = sysvars
+                while True:
+                    now = time.time()
+                    next_poll = last_poll + self.poll_interval - now
+                    if next_poll > 0:
+                        time.sleep(next_poll)
+                    now = time.time()
 
-                self.ntp_offset.insert(now, sysvars['offset'])
-                self.ntp_frequency.insert(now, sysvars['frequency'])
-                self.ntp_sys_jitter.insert(now, sysvars['sys_jitter'])
-                self.ntp_clk_jitter.insert(now, sysvars['clk_jitter'])
+                    info = dict()
+                    info['poll_ts'] = now
 
-                info['peers'] = dict()
-                peers = session.readstat()
-                for peer in peers:
-                    peer_variables = session.readvar(peer.associd)
-                    peer_variables['reftime'] = NTP_time_string_to_ctime(peer_variables['reftime'])
-                    peer_variables['rec'] = NTP_time_string_to_ctime(peer_variables['rec'])
-                    peer_variables['xmt'] = NTP_time_string_to_ctime(peer_variables['xmt'])
-                    peer_variables['reach'] = f"{int(peer_variables['reach']):o} (octal)"
-                    info['peers'][peer.associd] = peer_variables
+                    sysvars = session.readvar()
+                    info['sysvars'] = sysvars
 
-                # replace peer id by host or address
-                if 'peer' in info['sysvars']:
-                    peer_assoc = info['sysvars']['peer']
-                    if peer_assoc in info['peers']:
-                        info['sysvars']['assoc'] = peer_assoc
-                        info['sysvars']['peer'] = info['peers'][peer_assoc]['srchost'] if 'srchost' in info['peers'][peer_assoc] else None
-                        if info['sysvars']['peer'] == None:
-                            info['sysvars']['peer'] = info['peers'][peer_assoc]['srcadr']
-                else:
-                    info['sysvars']['assoc'] = None
+                    self.ntp_offset.insert(now, sysvars['offset'])
+                    self.ntp_frequency.insert(now, sysvars['frequency'])
+                    self.ntp_sys_jitter.insert(now, sysvars['sys_jitter'])
+                    self.ntp_clk_jitter.insert(now, sysvars['clk_jitter'])
 
-                # replace clocks by human readable
-                info['sysvars']['reftime'] = NTP_time_string_to_ctime(info['sysvars']['reftime'])
-                info['sysvars']['clock'] = NTP_time_string_to_ctime(info['sysvars']['clock'])
+                    info['peers'] = dict()
+                    peers = session.readstat()
+                    for peer in peers:
+                        peer_variables = session.readvar(peer.associd)
+                        peer_variables['reftime'] = NTP_time_string_to_ctime(peer_variables['reftime'])
+                        peer_variables['rec'] = NTP_time_string_to_ctime(peer_variables['rec'])
+                        peer_variables['xmt'] = NTP_time_string_to_ctime(peer_variables['xmt'])
+                        peer_variables['reach'] = f"{int(peer_variables['reach']):o} (octal)"
+                        info['peers'][peer.associd] = peer_variables
 
-                try:
-                    mrulist = session.mrulist()
-                    info['mrulist'] = { 'entries': [], 'ts': mrulist.now }
-                    entries = []
-                    for entry in mrulist.entries:
-                        entry = {
-                                'addr': entry.addr,
-                                'first': NTP_time_string_to_ctime(entry.first), 'last': NTP_time_string_to_ctime(entry.last),
-                                'mode_version': entry.mv,  # TODO: split?
-                                'restrictions': entry.rs,
-                                'packet_count': entry.ct,
-                                'score': entry.sc,
-                                'dropped': entry.dr
-                                }
-                        entries.append(entry)
-                    info['mrulist']['entries'] = sorted(entries, key=lambda d: d['last'], reverse=True)[0:self.max_mru_list_size]
+                    # replace peer id by host or address
+                    if 'peer' in info['sysvars']:
+                        peer_assoc = info['sysvars']['peer']
+                        if peer_assoc in info['peers']:
+                            info['sysvars']['assoc'] = peer_assoc
+                            info['sysvars']['peer'] = info['peers'][peer_assoc]['srchost'] if 'srchost' in info['peers'][peer_assoc] else None
+                            if info['sysvars']['peer'] == None:
+                                info['sysvars']['peer'] = info['peers'][peer_assoc]['srcadr']
+                    else:
+                        info['sysvars']['assoc'] = None
 
-                except Exception as e:
-                    print(f'Problem requesting MRU list from NTPSEC: {e}')
-                    info['mrulist'] = { 'entries': [], 'ts': None }
+                    # replace clocks by human readable
+                    info['sysvars']['reftime'] = NTP_time_string_to_ctime(info['sysvars']['reftime'])
+                    info['sysvars']['clock'] = NTP_time_string_to_ctime(info['sysvars']['clock'])
 
-                self.data = info
+                    try:
+                        mrulist = session.mrulist()
+                        info['mrulist'] = { 'entries': [], 'ts': mrulist.now }
+                        entries = []
+                        for entry in mrulist.entries:
+                            entry = {
+                                    'addr': entry.addr,
+                                    'first': NTP_time_string_to_ctime(entry.first), 'last': NTP_time_string_to_ctime(entry.last),
+                                    'mode_version': entry.mv,  # TODO: split?
+                                    'restrictions': entry.rs,
+                                    'packet_count': entry.ct,
+                                    'score': entry.sc,
+                                    'dropped': entry.dr
+                                    }
+                            entries.append(entry)
+                        info['mrulist']['entries'] = sorted(entries, key=lambda d: d['last'], reverse=True)[0:self.max_mru_list_size]
 
-                if now - last_clean >= 300:
-                    last_clean = now
+                    except Exception as e:
+                        print(f'Problem requesting MRU list from NTPSEC: {e}')
+                        info['mrulist'] = { 'entries': [], 'ts': None }
 
-                    for d in self.databases:
-                        d.clean()
+                    self.data = info
 
-                del session
+                    if now - last_clean >= 300:
+                        last_clean = now
 
-                last_poll = now;
+                        for d in self.databases:
+                            d.clean()
+
+                    last_poll = now;
 
             except KeyboardInterrupt as ki:
                 print(f'Exception (ntp_api.py, ctrl+c): {e}, line number: {e.__traceback__.tb_lineno}')
@@ -167,6 +170,8 @@ class ntp_api(threading.Thread):
             except Exception as e:
                 print(f'Exception (ntp_api.py): {e}, line number: {e.__traceback__.tb_lineno}')
                 time.sleep(1.0)
+
+            del session
 
 if __name__ == "__main__":
     n = ntp_api('localhost', 3, 20)

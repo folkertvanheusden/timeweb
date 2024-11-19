@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 import json
+import prctl
 import queue
 import socket
 import threading
@@ -82,6 +83,8 @@ class gps_api(threading.Thread):
         del self.queues[q]
 
     def run(self):
+        prctl.set_name('gps_api')
+
         print('GPS processing thread starting')
 
         while True:
