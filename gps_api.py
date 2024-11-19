@@ -18,7 +18,8 @@ class gps_api(threading.Thread):
 
         self.queues = []
         self.history = dict()
-
+        self.database = database
+        self.max_data_age = max_data_age
         self.hide_position = hide_position
 
         # GPS update interval
@@ -26,25 +27,23 @@ class gps_api(threading.Thread):
 
         self.databases = []
         #
-        self.clk_offset = time_series_db(database, 'pps_clk_offset', 100000 * max_data_age)
+        self.clk_offset = time_series_db(self.database, 'pps_clk_offset', 100000 * max_data_age)
         self.databases.append(self.clk_offset)
         #
-        self.hdop = time_series_db(database, 'gps_hdop', 86400 * max_data_age)
+        self.hdop = time_series_db(self.database, 'gps_hdop', 86400 * max_data_age)
         self.databases.append(self.hdop)
-        self.pdop = time_series_db(database, 'gps_pdop', 86400 * max_data_age)
+        self.pdop = time_series_db(self.database, 'gps_pdop', 86400 * max_data_age)
         self.databases.append(self.pdop)
-        self.vdop = time_series_db(database, 'gps_vdop', 86400 * max_data_age)
+        self.vdop = time_series_db(self.database, 'gps_vdop', 86400 * max_data_age)
         self.databases.append(self.vdop)
         #
-        self.sat_seen = time_series_db(database, 'sat_seen', 86400 * max_data_age)
+        self.sat_seen = time_series_db(self.database, 'sat_seen', 86400 * max_data_age)
         self.databases.append(self.sat_seen)
-        self.sat_used = time_series_db(database, 'sat_used', 86400 * max_data_age)
+        self.sat_used = time_series_db(self.database, 'sat_used', 86400 * max_data_age)
         self.databases.append(self.sat_used)
 
         # satellites
         self.sats = []
-
-        threading.Thread(target=self._db_cleaner, args=(self.databases,)).start()
 
     def _db_cleaner(self, db_list):
         while True:
@@ -87,6 +86,23 @@ class gps_api(threading.Thread):
 
         print('GPS processing thread starting')
 
+        databases = []
+        #
+        local_clk_offset = time_series_db(self.database, 'pps_clk_offset', 100000 * self.max_data_age)
+        databases.append(local_clk_offset)
+        #
+        local_hdop = time_series_db(self.database, 'gps_hdop', 86400 * self.max_data_age)
+        databases.append(local_hdop)
+        local_pdop = time_series_db(self.database, 'gps_pdop', 86400 * self.max_data_age)
+        databases.append(local_pdop)
+        local_vdop = time_series_db(self.database, 'gps_vdop', 86400 * self.max_data_age)
+        databases.append(local_vdop)
+        #
+        local_sat_seen = time_series_db(self.database, 'sat_seen', 86400 * self.max_data_age)
+        databases.append(local_sat_seen)
+        local_sat_used = time_series_db(self.database, 'sat_used', 86400 * self.max_data_age)
+        databases.append(local_sat_used)
+
         while True:
             s = None
 
@@ -98,6 +114,8 @@ class gps_api(threading.Thread):
                 s.send('?WATCH={"enable":true,"json":true}\r\n'.encode('ascii'))
 
                 buffer = ''
+
+                last_db_clean = 0
 
                 while True:
                     buffer += s.recv(65536).decode('ascii').replace('\r','')
@@ -117,21 +135,21 @@ class gps_api(threading.Thread):
 
                     if j['class'] == 'PPS':
                         clock_offset = int(j['clock_sec']) + int(j['clock_nsec']) / 1000000000.
-                        self.clk_offset.insert(now, clock_offset)
+                        local_clk_offset.insert(now, clock_offset)
 
                     elif j['class'] == 'SKY':
                         hdop = float(j['hdop'])
                         if hdop < 99:
-                            self.hdop.insert(now, hdop)
+                            local_hdop.insert(now, hdop)
                         vdop = float(j['vdop'])
                         if vdop < 99:
-                            self.vdop.insert(now, vdop)
+                            local_vdop.insert(now, vdop)
                         pdop = float(j['pdop'])
                         if pdop < 99:
-                            self.pdop.insert(now, pdop)
+                            local_pdop.insert(now, pdop)
 
-                        self.sat_seen.insert(now, float(j['nSat']))
-                        self.sat_used.insert(now, float(j['uSat']))
+                        local_sat_seen.insert(now, float(j['nSat']))
+                        local_sat_used.insert(now, float(j['uSat']))
 
                         self.sats = j['satellites']
 
@@ -154,6 +172,10 @@ class gps_api(threading.Thread):
                     # in case a client "forgets" to unregister
                     for f in forget:
                         self.queues.remove(f)
+
+                    if now - last_db_clean >= self.max_data_age / 2:
+                        self._db_cleaner(databases)
+                        last_db_clean = now
 
             except KeyboardInterrupt as ki:
                 print(f'Exception (gps_api.py, ctrl+c): {e}, line number: {e.__traceback__.tb_lineno}')

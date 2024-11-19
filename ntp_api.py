@@ -6,6 +6,7 @@ import datetime
 import json
 import prctl
 import socket
+import sys
 import threading
 import time
 from db import time_series_db
@@ -37,7 +38,8 @@ class ntp_api(threading.Thread):
         threading.Thread.__init__(self)
         self.host = host
         self.poll_interval = poll_interval
-
+        self.database = database
+        self.max_data_age = max_data_age
         self.max_mru_list_size = max_mru_list_size
 
         # empty initially
@@ -77,6 +79,11 @@ class ntp_api(threading.Thread):
 
         print('NTP poller thread starting')
 
+        local_ntp_offset = time_series_db(self.database, 'offset', 86400 * self.max_data_age)
+        local_ntp_frequency = time_series_db(self.database, 'frequency', 86400 * self.max_data_age)
+        local_ntp_sys_jitter = time_series_db(self.database, 'sys_jitter', 86400 * self.max_data_age)
+        local_ntp_clk_jitter = time_series_db(self.database, 'clk_jitter', 86400 * self.max_data_age)
+
         last_poll = 0
         last_clean = 0
 
@@ -90,6 +97,7 @@ class ntp_api(threading.Thread):
                     next_poll = last_poll + self.poll_interval - now
                     if next_poll > 0:
                         time.sleep(next_poll)
+                        print(next_poll, file=sys.stderr)
                     now = time.time()
 
                     info = dict()
@@ -98,10 +106,10 @@ class ntp_api(threading.Thread):
                     sysvars = session.readvar()
                     info['sysvars'] = sysvars
 
-                    self.ntp_offset.insert(now, sysvars['offset'])
-                    self.ntp_frequency.insert(now, sysvars['frequency'])
-                    self.ntp_sys_jitter.insert(now, sysvars['sys_jitter'])
-                    self.ntp_clk_jitter.insert(now, sysvars['clk_jitter'])
+                    local_ntp_offset.insert(now, sysvars['offset'])
+                    local_ntp_frequency.insert(now, sysvars['frequency'])
+                    local_ntp_sys_jitter.insert(now, sysvars['sys_jitter'])
+                    local_ntp_clk_jitter.insert(now, sysvars['clk_jitter'])
 
                     info['peers'] = dict()
                     peers = session.readstat()
@@ -151,13 +159,13 @@ class ntp_api(threading.Thread):
 
                     self.data = info
 
-                    if now - last_clean >= 300:
+                    if now - last_clean >= self.max_data_age / 2:
                         last_clean = now
 
                         for d in self.databases:
                             d.clean()
 
-                    last_poll = now;
+                    last_poll = time.time();
 
             except KeyboardInterrupt as ki:
                 print(f'Exception (ntp_api.py, ctrl+c): {e}, line number: {e.__traceback__.tb_lineno}')
